@@ -36,7 +36,7 @@ export function parseUrl(urlString: string): ParsedUrl | null {
 
 	try {
 		url = new URL(urlString);
-	} catch (err) {
+	} catch (_err) {
 		logger.error(`Attempted and failed to parse invalid URL: ${urlString}`);
 		return null;
 	}

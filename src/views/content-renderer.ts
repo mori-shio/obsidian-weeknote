@@ -40,7 +40,7 @@ export function renderMarkdownText(container: HTMLElement, text: string): void {
       content = match[7] || match[8];
       tag = "em";
     } else {
-      // Fallback - just append the match as text
+      // Fallback - just append the text
       container.appendText(fullMatch);
       lastIndex = match.index + fullMatch.length;
       continue;
@@ -154,7 +154,7 @@ export function parseScheduleContent(content: string): {
   }
   
   // Extract meet URL (e.g., "[meet](https://...)")
-  const meetMatch = remaining.match(/\[meet\]\((https?:\/\/[^\)]+)\)/);
+  const meetMatch = remaining.match(/\[meet\]\((https?:\/\/[^)]+)\)/);
   const meetUrl = meetMatch ? meetMatch[1] : null;
   if (meetMatch) {
     remaining = remaining.replace(meetMatch[0], "").trim();

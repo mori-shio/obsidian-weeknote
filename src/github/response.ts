@@ -1,4 +1,3 @@
-import { PluginSettings } from "../globals";
 import type * as OpenAPI from "@octokit/openapi-types";
 import type { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods";
 

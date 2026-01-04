@@ -10,6 +10,7 @@ class ICSParser {
 
   private parse(): void {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const ICAL = require("ical.js");
       const jcalData = ICAL.parse(this.icsData);
       this.icalComponent = new ICAL.Component(jcalData);
@@ -25,8 +26,8 @@ class ICSParser {
       try {
         const regex = new RegExp(pattern.trim());
         return regex.test(summary);
-      } catch (e) {
-        console.warn(`[Worker] Invalid regex pattern: ${pattern}`, e);
+      } catch (_e) {
+        console.warn(`[Worker] Invalid regex pattern: ${pattern}`, _e);
         return summary.includes(pattern.trim());
       }
     });
@@ -46,6 +47,7 @@ class ICSParser {
     }
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const ICAL = require("ical.js");
       const component = this.icalComponent as { getAllSubcomponents: (type: string) => unknown[] };
       const vevents = component.getAllSubcomponents("vevent");
@@ -79,7 +81,7 @@ class ICSParser {
               getFirstValue: () => string;
               getParameter: (name: string) => string | null;
             };
-            const partstat = att.getParameter("partstat");
+            const _partstat = att.getParameter("partstat");
             // Note: Declined status check could be personalized here
             // For now, we don't filter based on user's own declined status
           }
@@ -96,13 +98,13 @@ class ICSParser {
         
         if (vcomp.getFirstPropertyValue("recurrence-id")) {
           const attendees = vcomp.getAllProperties("attendee");
-          let declined = false;
+          const declined = false;
           for (const attendee of attendees) {
             const att = attendee as { 
               getFirstValue: () => string;
               getParameter: (name: string) => string | null;
             };
-            const partstat = att.getParameter("partstat");
+            const _partstat = att.getParameter("partstat");
             // Note: Could add personalized declined check here
           }
           if (declined) continue;
@@ -134,13 +136,13 @@ class ICSParser {
         }
         
         const attendees = vcomp.getAllProperties("attendee");
-        let userDeclined = false;
+        const userDeclined = false;
         for (const attendee of attendees) {
           const att = attendee as { 
             getFirstValue: () => string;
             getParameter: (name: string) => string | null;
           };
-          const partstat = att.getParameter("partstat");
+          const _partstat = att.getParameter("partstat");
           // Note: Could add personalized declined check here
         }
         if (userDeclined) continue;
@@ -258,7 +260,7 @@ class ICSParser {
   }
 
   private extractMeetUrl(text: string): string | null {
-    const match = text.match(/https:\/\/meet\.google\.com\/[a-z\-]+/);
+    const match = text.match(/https:\/\/meet\.google\.com\/[a-z-]+/);
     return match ? match[0] : null;
   }
 }

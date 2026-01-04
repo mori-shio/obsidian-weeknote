@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting, setIcon } from "obsidian";
-import { WeeknoteSettings, IWeeknotePlugin, DaySection } from "../types";
+import { IWeeknotePlugin } from "../types";
 import { i18n, I18nKey, setLanguage } from "../i18n";
 import { DEFAULT_SETTINGS, VIEW_TYPE_WEEKNOTE } from "../constants";
 import { GithubSettingsUI } from "./github-settings";
@@ -174,7 +174,7 @@ export class WeeknoteSettingTab extends PluginSettingTab {
         const weekStart = this.plugin.generator.getWeekStartDate();
         const preview = weekStart.format(momentFormat);
         previewEl.setText(`${preview}.md`);
-      } catch (e) {
+      } catch (_err) {
         previewEl.setText("Invalid format");
       }
     };

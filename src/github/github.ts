@@ -1,9 +1,8 @@
-import { RequestError, mapObject } from "../util";
+import { RequestError } from "../util";
 import { PluginSettings } from "../globals";
 import { GithubAccount } from "../settings/types";
 import { GitHubApi } from "./api";
 import type {
-	CheckRunListResponse,
 	IssueResponse,
 	IssueTimelineResponse,
 	PullResponse,
