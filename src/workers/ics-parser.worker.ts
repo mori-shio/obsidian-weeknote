@@ -79,15 +79,9 @@ class ICSParser {
               getFirstValue: () => string;
               getParameter: (name: string) => string | null;
             };
-            const email = att.getFirstValue();
             const partstat = att.getParameter("partstat");
-            if (email && email.includes("shion.morikawa") && partstat === "DECLINED") {
-              if (!declinedDatesByUid.has(uid)) {
-                declinedDatesByUid.set(uid, new Set<string>());
-              }
-              declinedDatesByUid.get(uid)!.add(exceptionDateStr);
-              break;
-            }
+            // Note: Declined status check could be personalized here
+            // For now, we don't filter based on user's own declined status
           }
         }
       }
@@ -108,13 +102,11 @@ class ICSParser {
               getFirstValue: () => string;
               getParameter: (name: string) => string | null;
             };
-            const email = att.getFirstValue();
             const partstat = att.getParameter("partstat");
-            if (email && email.includes("shion.morikawa") && partstat === "DECLINED") {
-              declined = true;
-              break;
-            }
+            // Note: Could add personalized declined check here
           }
+          if (declined) continue;
+
           if (declined) continue;
           
           const dtstart = event.startDate;
@@ -148,14 +140,11 @@ class ICSParser {
             getFirstValue: () => string;
             getParameter: (name: string) => string | null;
           };
-          const email = att.getFirstValue();
           const partstat = att.getParameter("partstat");
-          if (email && email.includes("shion.morikawa") && partstat === "DECLINED") {
-            userDeclined = true;
-            break;
-          }
+          // Note: Could add personalized declined check here
         }
         if (userDeclined) continue;
+
         
         if (event.isRecurring()) {
           const exceptionDates = new Set<string>(exceptionDatesByUid.get(uid) || []);

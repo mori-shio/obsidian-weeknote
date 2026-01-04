@@ -16,15 +16,19 @@ const inlineWorkerPlugin = {
   name: 'inline-worker',
   setup(build) {
     build.onResolve({ filter: /\.worker\.ts$/ }, args => {
+        const fullPath = path.join(args.resolveDir, args.path);
+        const filename = path.basename(args.path);
         return {
-            path: path.join(args.resolveDir, args.path),
-            namespace: 'inline-worker'
+            path: filename,  // Use filename only to avoid exposing local paths in output
+            namespace: 'inline-worker',
+            pluginData: { fullPath }  // Store full path for onLoad
         };
     });
 
     build.onLoad({ filter: /.*/, namespace: 'inline-worker' }, async args => {
+        const fullPath = args.pluginData.fullPath;
         const result = await esbuild.build({
-            entryPoints: [args.path],
+            entryPoints: [fullPath],
             write: false,
             bundle: true,
             minify: prod, 
