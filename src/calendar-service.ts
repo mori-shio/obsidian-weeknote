@@ -97,7 +97,7 @@ export class CalendarService {
               worker.postMessage(request, [icsBuffer]);
               
           } catch (e) {
-              reject(e);
+              reject(e instanceof Error ? e : new Error(String(e)));
           }
       });
   }

@@ -50,10 +50,10 @@ export default class WeeknotePlugin extends Plugin {
     setLanguage(this.settings.language);
     
     // Migration: weeknotePath/weeknoteFilename -> weeknoteFileFormat
-    const settingsAny = this.settings as any;
+    const settingsAny = (this.settings as unknown) as Record<string, unknown>;
     if (settingsAny.weeknotePath !== undefined || settingsAny.weeknoteFilename !== undefined) {
-      const path = settingsAny.weeknotePath || "01.Weeknote/[YYYY]/[MM]";
-      const filename = settingsAny.weeknoteFilename || "[YYYY]-[MM]-[DD]";
+      const path = (settingsAny.weeknotePath as string) || "01.Weeknote/[YYYY]/[MM]";
+      const filename = (settingsAny.weeknoteFilename as string) || "[YYYY]-[MM]-[DD]";
       
       if (this.settings.weeknoteFileFormat === "01.Weeknote/[YYYY]/[MM]/[YYYY]-[MM]-[DD]") {
         this.settings.weeknoteFileFormat = `${path}/${filename}`;
@@ -72,20 +72,20 @@ export default class WeeknotePlugin extends Plugin {
 
     this.registerView(VIEW_TYPE_WEEKNOTE, (leaf) => new WeeknoteView(leaf, this));
 
-    this.addRibbonIcon("calendar-clock", "Open Weeknote", () => {
-      this.activateView();
+    this.addRibbonIcon("calendar-clock", "Open weeknote", () => {
+      void this.activateView();
     });
 
     this.addCommand({
-      id: "open-weeknote-manager",
-      name: "Open Weeknote",
-      callback: () => this.activateView(),
+      id: "open-manager",
+      name: "Open weekly report view",
+      callback: () => void this.activateView(),
     });
 
     this.addCommand({
-      id: "create-weeknote",
-      name: "Create Weeknote",
-      callback: () => this.createWeeknote(),
+      id: "create-report",
+      name: "Create weekly report",
+      callback: () => void this.createWeeknote(),
     });
 
     this.addSettingTab(new WeeknoteSettingTab(this.app, this));
@@ -146,9 +146,12 @@ export default class WeeknotePlugin extends Plugin {
             }
             new Notice("スケジュールの同期が完了しました");
             
-            this.app.workspace.getLeavesOfType(VIEW_TYPE_WEEKNOTE).forEach((leaf) => {
-              if (leaf.view instanceof WeeknoteView) {
-                leaf.view.refreshContent();
+            const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_WEEKNOTE);
+            leaves.forEach(leaf => {
+              const view = (leaf.view as unknown) as { onOpen?: () => Promise<void> };
+              if (view && typeof view.onOpen === "function") {
+                // Need to re-render the entire view for layout change
+                void view.onOpen();
               }
             });
           }
@@ -180,7 +183,7 @@ export default class WeeknotePlugin extends Plugin {
   }
 
   onunload(): void {
-    this.saveSettings();
+    void this.saveSettings();
   }
 
   async loadSettings(): Promise<void> {

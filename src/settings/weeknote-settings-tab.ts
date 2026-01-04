@@ -10,7 +10,7 @@ export class WeeknoteSettingTab extends PluginSettingTab {
   private githubSettingsUI: GithubSettingsUI;
 
   constructor(app: App, plugin: IWeeknotePlugin) {
-    super(app, plugin as any);
+    super(app, (plugin as unknown) as import("obsidian").Plugin);
     this.plugin = plugin;
     this.githubSettingsUI = new GithubSettingsUI(
       this.app, 
@@ -44,9 +44,9 @@ export class WeeknoteSettingTab extends PluginSettingTab {
   refreshSidebarViews(): void {
     const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_WEEKNOTE);
     leaves.forEach(leaf => {
-      const view = leaf.view as any;
-      if (view && view.refreshContent) {
-        view.refreshContent();
+      const view = (leaf.view as unknown) as { refreshContent?: () => Promise<void> };
+      if (view && typeof view.refreshContent === "function") {
+        void view.refreshContent();
       }
     });
   }
@@ -59,10 +59,10 @@ export class WeeknoteSettingTab extends PluginSettingTab {
     const t = this.t.bind(this);
     const tFrag = this.tFrag.bind(this);
 
-    containerEl.createEl("h2", { text: "Weeknote" });
+    new Setting(containerEl).setName("Weeknote").setHeading();
 
     // General Settings
-    containerEl.createEl("h3", { text: t("generalSettings"), cls: "setting-section-heading" });
+    new Setting(containerEl).setName(t("generalSettings")).setHeading();
 
     new Setting(containerEl)
       .setName(t("language"))
@@ -102,10 +102,10 @@ export class WeeknoteSettingTab extends PluginSettingTab {
             // Refresh sidebar view to apply new layout
             const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_WEEKNOTE);
             leaves.forEach(leaf => {
-              const view = leaf.view as any;
-              if (view) {
+              const view = (leaf.view as unknown) as { onOpen?: () => Promise<void> };
+              if (view && typeof view.onOpen === "function") {
                 // Need to re-render the entire view for layout change
-                view.onOpen();
+                void view.onOpen();
               }
             });
           })
@@ -164,11 +164,9 @@ export class WeeknoteSettingTab extends PluginSettingTab {
 
     // Add preview element below the input
     // Force controlEl to display column to place preview under the textbox
-    fileFormatSetting.controlEl.setAttribute("style", "display: flex; flex-direction: column; align-items: flex-end;");
+    fileFormatSetting.controlEl.addClass("weeknote-settings-control-column");
     
-    const previewEl = fileFormatSetting.controlEl.createDiv({ 
-      attr: { style: "font-size: 0.8em; color: var(--text-muted); opacity: 0.7; margin-top: 4px; text-align: right; width: 100%;" } 
-    });
+    const previewEl = fileFormatSetting.controlEl.createDiv({ cls: "weeknote-settings-preview" });
 
     const updatePreview = (value: string) => {
       try {
@@ -186,9 +184,9 @@ export class WeeknoteSettingTab extends PluginSettingTab {
 
 
     // Calendar Settings
-    containerEl.createEl("h3", { text: t("integrationSettings"), cls: "setting-section-heading" });
+    new Setting(containerEl).setName(t("integrationSettings")).setHeading();
 
-    containerEl.createEl("h4", { text: "Calendar", cls: "setting-subheading" });
+    new Setting(containerEl).setName("Calendar").setHeading();
 
     new Setting(containerEl)
       .setName(t("calendarIcsUrl"))
@@ -219,7 +217,7 @@ export class WeeknoteSettingTab extends PluginSettingTab {
     // Adjust textarea style
     const textarea = excludeSetting.controlEl.querySelector("textarea") as HTMLTextAreaElement;
     if (textarea) {
-      textarea.style.minHeight = "80px";
+      textarea.addClass("weeknote-template-preview");
     }
 
     // GitHub Settings (within Integration)
@@ -229,7 +227,7 @@ export class WeeknoteSettingTab extends PluginSettingTab {
 
 
     // Template Settings
-    containerEl.createEl("h3", { text: t("templateSettings"), cls: "setting-section-heading" });
+    new Setting(containerEl).setName(t("templateSettings")).setHeading();
 
     new Setting(containerEl)
       .setDesc(t("resetToDefaultDesc"))
@@ -250,7 +248,7 @@ export class WeeknoteSettingTab extends PluginSettingTab {
       );
 
     // Reports Section
-    containerEl.createEl("h4", { text: t("reportsSection"), cls: "setting-subheading" });
+    new Setting(containerEl).setName(t("reportsSection")).setHeading();
 
     new Setting(containerEl)
       .setName(t("title"))
@@ -314,7 +312,7 @@ export class WeeknoteSettingTab extends PluginSettingTab {
       );
 
     // Summary Section
-    containerEl.createEl("h4", { text: t("summarySection"), cls: "setting-subheading" });
+    new Setting(containerEl).setName(t("summarySection")).setHeading();
 
     new Setting(containerEl)
       .setName(t("title"))
@@ -366,8 +364,8 @@ export class WeeknoteSettingTab extends PluginSettingTab {
     });
 
     // Task Settings
-    containerEl.createEl("h3", { text: lang === "ja" ? "☑️ タスク設定" : "☑️ Task Settings", cls: "setting-section-heading" });
-    containerEl.createEl("h4", { text: lang === "ja" ? "タスクコピー" : "Task Copy", cls: "setting-subheading" });
+    new Setting(containerEl).setName(lang === "ja" ? "☑️ タスク設定" : "☑️ Task settings").setHeading();
+    new Setting(containerEl).setName(lang === "ja" ? "タスクコピー" : "Task copy").setHeading();
 
     // Button presets for copy from
     const buttonPresets: { type: "relative" | "weekday"; value: number; label: string }[] = [
@@ -486,7 +484,7 @@ export class WeeknoteSettingTab extends PluginSettingTab {
     );
 
     // Memo Settings
-    containerEl.createEl("h3", { text: t("memoSettings"), cls: "setting-section-heading" });
+    new Setting(containerEl).setName(t("memoSettings")).setHeading();
 
     // Find memo section heading from daySections
     const memoSection = this.plugin.settings.daySections.find(s => s.id === "memo");
@@ -495,7 +493,7 @@ export class WeeknoteSettingTab extends PluginSettingTab {
     // Sync memoHeading with memo section
     if (memoSection && this.plugin.settings.memoHeading !== memoSection.heading) {
       this.plugin.settings.memoHeading = memoSection.heading;
-      this.plugin.saveSettings();
+      void this.plugin.saveSettings();
     }
 
     // Store reference to the readonly input for live sync

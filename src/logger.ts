@@ -23,7 +23,7 @@ export class Logger {
 					console.warn(_message);
 					break;
 				case LogLevel.Info:
-					console.info(_message);
+					console.debug(_message);
 					break;
 				case LogLevel.Debug:
 					console.debug(_message);

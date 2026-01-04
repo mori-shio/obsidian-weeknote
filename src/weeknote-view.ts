@@ -335,7 +335,7 @@ export class WeeknoteView extends ItemView {
     
     const prevBtn = navCenter.createEl("button", { cls: "weeknote-nav-btn weeknote-nav-prev" });
     setIcon(prevBtn, "chevron-left");
-    prevBtn.setAttribute("aria-label", "Previous Week");
+    prevBtn.setAttribute("aria-label", "Previous week");
     prevBtn.addEventListener("click", () => this.navigateWeek(-1));
 
     // Week Info (Date Range)
@@ -344,7 +344,7 @@ export class WeeknoteView extends ItemView {
 
     const nextBtn = navCenter.createEl("button", { cls: "weeknote-nav-btn weeknote-nav-next" });
     setIcon(nextBtn, "chevron-right");
-    nextBtn.setAttribute("aria-label", "Next Week");
+    nextBtn.setAttribute("aria-label", "Next week");
     nextBtn.addEventListener("click", () => this.navigateWeek(1));
 
     // Right side controls
@@ -353,7 +353,7 @@ export class WeeknoteView extends ItemView {
     // This Week Button
     const thisWeekBtn = navRight.createEl("button", { cls: "weeknote-nav-btn weeknote-nav-today" });
     thisWeekBtn.setText(t("thisWeek"));
-    thisWeekBtn.setAttribute("aria-label", "Go to This Week");
+    thisWeekBtn.setAttribute("aria-label", "Go to this week");
     thisWeekBtn.addEventListener("click", () => this.navigateToToday());
     
     this.updateWeekDisplay(); // Set initial text
@@ -481,7 +481,7 @@ export class WeeknoteView extends ItemView {
       if (e.isComposing) return;
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        this.saveMemo();
+        void this.saveMemo();
       }
       if (e.key === "Escape") {
         e.preventDefault();
@@ -608,7 +608,7 @@ export class WeeknoteView extends ItemView {
       if (e.isComposing) return;
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        this.saveMemo();
+        void this.saveMemo();
       }
       if (e.key === "Escape") {
         e.preventDefault();
@@ -717,7 +717,7 @@ export class WeeknoteView extends ItemView {
       if (e.isComposing) return;
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        this.saveMemo();
+        void this.saveMemo();
       }
       if (e.key === "Escape") {
         e.preventDefault();
@@ -825,7 +825,7 @@ export class WeeknoteView extends ItemView {
       if (e.isComposing) return;
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        this.saveMemo();
+        void this.saveMemo();
       }
       if (e.key === "Escape") {
         e.preventDefault();
@@ -888,7 +888,7 @@ export class WeeknoteView extends ItemView {
         this.selectedDate = date.clone();
         this.lastSelectedLineIndex = null;
         this.renderTabs(weekStart, days);
-        this.refreshContent();
+        void this.refreshContent();
       });
     }
   }
@@ -1290,8 +1290,8 @@ export class WeeknoteView extends ItemView {
                       this.activeMemoTooltip = null;
                   }
                   selectedMemo.removeClass("is-selected");
-                  this.plugin.deleteMemo(memo).then(() => {
-                      this.refreshMemos();
+                  void this.plugin.deleteMemo(memo).then(() => {
+                      void this.refreshMemos();
                   });
               }
           }
@@ -1484,8 +1484,9 @@ export class WeeknoteView extends ItemView {
         
         // Click to select card and show action tooltip
         // Remove any existing handler first
-        if ((card as any)._memoClickHandler) {
-          card.removeEventListener("click", (card as any)._memoClickHandler);
+        const cardWithHandler = card as HTMLElement & { _memoClickHandler?: (e: MouseEvent) => void };
+        if (cardWithHandler._memoClickHandler) {
+          card.removeEventListener("click", cardWithHandler._memoClickHandler);
         }
         
         const clickHandler = (e: MouseEvent) => {
@@ -1509,7 +1510,7 @@ export class WeeknoteView extends ItemView {
           card.addClass("is-selected");
         };
         
-        (card as any)._memoClickHandler = clickHandler;
+        cardWithHandler._memoClickHandler = clickHandler;
         card.addEventListener("click", clickHandler);
       }
       
@@ -1629,7 +1630,7 @@ export class WeeknoteView extends ItemView {
         
         emptyState.setText(t("copyFrom"));
         
-        this.showCopyTasksOptions(emptyState, date);
+        void this.showCopyTasksOptions(emptyState, date);
       }
 
       // Add task button
@@ -2712,7 +2713,7 @@ export class WeeknoteView extends ItemView {
       titleCell.setText(task.title); // Temporary fallback
       
       // Force re-render this line to restore full rich text/links logic
-      this.refreshTaskList(task.lineIndex, false, true);
+      void this.refreshTaskList(task.lineIndex, false, true);
 
       if (restoreSelection) {
         // Ensure row is selected if needed (usually it stays selected)
@@ -2755,7 +2756,7 @@ export class WeeknoteView extends ItemView {
     const cancel = (restoreSelection: boolean = true, overrideSelectIndex?: number) => {
       cleanup(restoreSelection);
       if (overrideSelectIndex !== undefined) {
-         this.refreshTaskList(overrideSelectIndex);
+         void this.refreshTaskList(overrideSelectIndex);
       }
     };
     
@@ -2879,7 +2880,7 @@ export class WeeknoteView extends ItemView {
       ev.stopPropagation();
       cleanup();
       await this.plugin.deleteTask(task.lineIndex, this.selectedDate);
-      this.refreshTaskList(undefined, false, false);
+      await this.refreshTaskList(undefined, false, false);
     });
     
     // Calculate click X offset for horizontal positioning
@@ -3048,7 +3049,7 @@ export class WeeknoteView extends ItemView {
       ev.stopPropagation();
       cleanup();
       await this.plugin.deleteMemo(originalMemo);
-      this.refreshMemos();
+      await this.refreshMemos();
     });
     
     // Calculate click X offset for horizontal positioning
@@ -3275,7 +3276,7 @@ export class WeeknoteView extends ItemView {
             this.activeInputCleanup = null;
           }
           
-          this.refreshTaskList(insertBeforeLineIndex);
+          await this.refreshTaskList(insertBeforeLineIndex);
         };
         
         confirmBtn.addEventListener("click", (e) => { e.stopPropagation(); submit(); });
@@ -3392,8 +3393,9 @@ export class WeeknoteView extends ItemView {
       
       // Re-add click handler for future clicks
       // Remove any existing handler first
-      if ((card as any)._memoClickHandler) {
-        card.removeEventListener("click", (card as any)._memoClickHandler);
+      const cardWithHandler = card as HTMLElement & { _memoClickHandler?: (e: MouseEvent) => void };
+      if (cardWithHandler._memoClickHandler) {
+        card.removeEventListener("click", cardWithHandler._memoClickHandler);
       }
       
       const clickHandler = (e: MouseEvent) => {
@@ -3415,7 +3417,7 @@ export class WeeknoteView extends ItemView {
         card.addClass("is-selected");
       };
       
-      (card as any)._memoClickHandler = clickHandler;
+      cardWithHandler._memoClickHandler = clickHandler;
       card.addEventListener("click", clickHandler);
     };
     

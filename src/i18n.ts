@@ -214,45 +214,45 @@ export const i18n = {
     // General settings
     language: "Language",
     languageDesc: "Display language for settings",
-    layoutMode: "Layout Mode",
+    layoutMode: "Layout mode",
     layoutModeDesc: "Choose sidebar layout style",
-    layoutTwoPanel: "2-Panel (Schedule + Task/Memo)",
-    layoutThreePanel: "3-Panel Vertical",
-    layoutThreePanelHorizontal: "3-Panel Horizontal",
-    layoutTPanel: "T-Layout (Schedule Top + Task/Memo Bottom)",
+    layoutTwoPanel: "2-panel (Schedule + Task/Memo)",
+    layoutThreePanel: "3-panel vertical",
+    layoutThreePanelHorizontal: "3-panel horizontal",
+    layoutTPanel: "T-layout (Schedule top + Task/Memo bottom)",
     
     // Integration settings
     calendarIcsUrl: "Calendar ICS URL",
     calendarIcsUrlDesc: "Calendar ICS URL (secret address). Supports Google Calendar, Outlook, etc.",
-    excludeEventPatterns: "Exclude Event Patterns (Regex)",
+    excludeEventPatterns: "Exclude event patterns (regex)",
     excludeEventPatternsDesc: "Enter regular expressions of events to exclude, one per line.<br>(e.g., ^Lunch Break$, .*Party$)",
     
     // General settings - URL conversion
-    saveLinksToMarkdown: "Convert URLs to Markdown Links",
+    saveLinksToMarkdown: "Convert URLs to markdown links",
     saveLinksToMarkdownDesc: "Automatically fetch title for pasted URLs and convert to [Title](URL)",
     
     // Week settings
-    weekStartDay: "Week Start Day",
+    weekStartDay: "Week start day",
     weekStartDayDesc: "Select the starting day of the week",
 
     
     // Path settings
-    weeknoteFileFormat: "Weeknote File Path",
+    weeknoteFileFormat: "Weeknote file path",
     weeknoteFileFormatDesc: "Folder path and filename.<br>Note: Wrap date formats (YY, MM, etc.) in [].<br>Ex: 01.Weeknote/[YYYY]/[MM]/[YYYY]-[MM]-[DD]",
     
     // Template settings
-    resetToDefault: "Reset to Default",
+    resetToDefault: "Reset to default",
     resetToDefaultDesc: "Reset template settings to default values",
-    reportsSection: "Reports Section",
+    reportsSection: "Reports section",
     title: "Title",
     reportsTitleDesc: "Heading displayed at the top of the report",
-    daySection: "Daily Section",
-    dayDateFormat: "Date Format",
+    daySection: "Daily section",
+    dayDateFormat: "Date format",
     dayDateFormatDesc: "Date heading format (moment.js format).<br>Ex: ## MM-DD (ddd)",
-    daySectionItems: "Daily Section Items",
-    addSection: "+ Add Section",
-    summarySection: "Summary Section",
-    summaryTitle: "Summary Title",
+    daySectionItems: "Daily section items",
+    addSection: "+ Add section",
+    summarySection: "Summary section",
+    summaryTitle: "Summary title",
     summaryTitleDesc: "Heading for the summary section at the bottom",
 
     // Preview
@@ -263,44 +263,44 @@ export const i18n = {
     previewSummary: "Summary",
     scheduleExample: "- [ ] 10:00 Event A",
     otherDaysSame: "... (Other days follow same format)",
-    templatePreview: "Template Preview",
+    templatePreview: "Template preview",
     show: "Show",
     hide: "Hide",
     
     // Day section items
-    calendarSchedule: "Calendar Schedule",
+    calendarSchedule: "Calendar schedule",
     calendarScheduleDesc: "Calendar events are auto-inserted here",
     tasks: "Tasks",
     memo: "Memo",
     memoDesc: "Memo save location",
-    newItem: "New Item",
+    newItem: "New item",
     headingPlaceholder: "### heading",
-    moveUp: "Move Up",
-    moveDown: "Move Down",
-    toggleVisibility: "Toggle Visibility",
+    moveUp: "Move up",
+    moveDown: "Move down",
+    toggleVisibility: "Toggle visibility",
     showSection: "Show",
     hideSection: "Hide",
     deleteSection: "Delete",
     
     // Memo settings
-    insertSection: "Insert Section",
+    insertSection: "Insert section",
     insertSectionDesc: "Linked to the 'Memo' heading in daily section items",
     placeholder: "Placeholder",
     placeholderDesc: "Hint text displayed in input field",
-    saveButtonLabel: "Post Button Label",
+    saveButtonLabel: "Post button label",
     saveButtonLabelDesc: "Text displayed on post button",
-    timestampFormat: "Timestamp Format",
+    timestampFormat: "Timestamp format",
     timestampFormatDesc: "moment.js format (e.g., YYYY-MM-DD HH:mm:ss, HH:mm)",
     
     // Sidebar view
     weeknoteManager: "Weeknote",
     weekOf: "Week of",
-    createReport: "Create Report",
-    openReport: "Open Report",
+    createReport: "Create report",
+    openReport: "Open report",
     today: "Today",
-    thisWeek: "This Week",
-    quickMemo: "✏️ MEMO",
-    todayMemos: "📝 Today's Memos",
+    thisWeek: "This week",
+    quickMemo: "✏️ Memo",
+    todayMemos: "📝 Today's memos",
     noMemos: "No memos for today",
     noSchedule: "No schedule for today",
     
@@ -308,7 +308,7 @@ export const i18n = {
     creatingReport: "Creating report...",
     reportCreated: "Report created",
     reportCreateFailed: "Failed to create report",
-    reportNotFound: "This week's report not found. Click 'Create Report' to create one.",
+    reportNotFound: "This week's report not found. Click 'Create report' to create one.",
     enterText: "Please enter text",
     saveFailed: "Failed to save",
     loadMemoFailed: "Failed to load memos",
@@ -335,10 +335,10 @@ export const i18n = {
     addTask: "Add task",
     edit: "Edit",
     delete: "Delete",
-    openLink: "Open Link",
+    openLink: "Open link",
     
     // Help panel (Task)
-    helpTitle: "Keyboard Shortcuts",
+    helpTitle: "Keyboard shortcuts",
     // No selection
     helpNoSelection: "No card selected",
     helpArrowSelect: "Select card",
@@ -356,7 +356,7 @@ export const i18n = {
     helpEscCancel: "Cancel",
     
     // Help panel (Memo)
-    memoHelpTitle: "Keyboard Shortcuts",
+    memoHelpTitle: "Keyboard shortcuts",
     // Unfocused
     memoHelpUnfocused: "Unfocused",
     memoHelpEnterFocus: "Enter memo input mode",
@@ -382,8 +382,8 @@ export const i18n = {
     // GitHub Link settings
     githubLinkSettings: "GitHub Link",
     githubAuthDesc: "Authentication token allows referencing private repos and increases rate limits.",
-    githubAccounts: "GitHub Accounts",
-    addGithubAccount: "Add GitHub Account",
+    githubAccounts: "GitHub accounts",
+    addGithubAccount: "Add GitHub account",
     add: "Add",
     defaultAccount: "Default account",
     defaultAccountDesc: "Used when no organization matches.",
@@ -396,7 +396,7 @@ export const i18n = {
     useCustomOAuthDesc: "You can optionally provide your own OAuth app for more control and a larger request rate limit.",
     token: "Token",
     tokenDesc: "A GitHub token, which can be generated automatically (recommended) or by creating a personal access token.",
-    generateToken: "Generate Token",
+    generateToken: "Generate token",
     tokenPlaceholder: "Personal Access Token / OAuth Token",
     saveAccount: "Save account",
     deleteAccount: "Delete account",

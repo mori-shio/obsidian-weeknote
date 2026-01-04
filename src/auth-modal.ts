@@ -25,7 +25,7 @@ export class AuthModal extends Modal {
 			text: this.verification.user_code,
 		});
 		const button = codeEl.createEl("button", {
-			attr: { type: "button", "aria-label": "Copy Code" },
+			attr: { type: "button", "aria-label": "Copy code" },
 		});
 		setIcon(button, "copy");
 		button.addEventListener("click", this.copyToClipboard.bind(this));

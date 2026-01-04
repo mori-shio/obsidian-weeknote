@@ -122,13 +122,11 @@ export function safeJSONParse<T>(value: string, props: Record<keyof T, boolean>)
 	}
 
 	// Validate object shape
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const result: any = {};
+	const result = {} as Partial<T>;
 	for (const [_prop, include] of Object.entries(props)) {
 		const prop = _prop as keyof T;
-		if (include && parsed[prop]) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-			result[prop] = parsed[prop];
+		if (include && (parsed as Record<string, unknown>)[prop as string]) {
+			(result as Record<string, unknown>)[prop as string] = (parsed as Record<string, unknown>)[prop as string];
 		}
 	}
 
@@ -162,8 +160,7 @@ export function sleep(ms: number): Promise<void> {
  */
 export function promiseWithResolvers<T>() {
 	let resolve!: (value: T | PromiseLike<T>) => void;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let reject!: (reason?: any) => void;
+	let reject!: (reason?: unknown) => void;
 	const promise = new Promise<T>((res, rej) => {
 		resolve = res;
 		reject = rej;
@@ -188,9 +185,8 @@ export class RequestError implements Error {
 		this.message = originalError.message;
 
 		// Request props
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-		this.headers = (originalError as any).headers;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-		this.status = (originalError as any).status;
+		const err = (originalError as unknown) as Record<string, unknown>;
+		this.headers = (err.headers as Record<string, string>) ?? {};
+		this.status = (err.status as number) ?? 0;
 	}
 }

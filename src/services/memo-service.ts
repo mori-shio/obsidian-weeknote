@@ -13,7 +13,11 @@ export class MemoService {
     const targetDate = date || moment();
     const file = await this.fileUtils.ensureWeeknoteExists(targetDate);
 
-    const fileContent = await this.app.vault.read(file as TFile);
+    if (!(file instanceof TFile)) {
+      throw new Error("Failed to create or find weeknote file");
+    }
+
+    const fileContent = await this.app.vault.read(file);
     const lines = fileContent.split("\n");
 
     const validHeadings = this.fileUtils.getLocaleHeadings(targetDate);

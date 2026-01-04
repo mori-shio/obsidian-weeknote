@@ -14,7 +14,7 @@ import type {
 const tokenMatchRegex = /repo:(.+)\//;
 const api = new GitHubApi();
 
-function getAccount(org?: string): any | undefined {
+function getAccount(org?: string): GithubAccount | undefined {
 	const account =
 		PluginSettings.accounts.find((acc: GithubAccount) => acc.orgs.some((savedOrg: string) => savedOrg === org)) ??
 		PluginSettings.accounts.find((acc: GithubAccount) => acc.id === PluginSettings.defaultAccount);
@@ -78,7 +78,7 @@ export async function getPRForIssue(timelineUrl: string, org?: string): Promise<
 	}
 
 	// TODO: Figure out a better/more reliable way to do this.
-	const crossRefEvent = result.find((_evt: any) => {
+	const crossRefEvent = result.find((_evt: unknown) => {
 		const evt = _evt as Partial<TimelineCrossReferencedEvent>;
 		return evt.event === "cross-referenced" && evt.source?.issue?.pull_request?.html_url;
 	}) as TimelineCrossReferencedEvent | undefined;

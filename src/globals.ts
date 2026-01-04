@@ -16,7 +16,7 @@ export function setCache(newCache: RequestCache) {
     cache = newCache;
 }
 
-export function updatePluginSettings(data: any) {
+export function updatePluginSettings(data: Partial<GithubLinkPluginData>) {
     Object.assign(PluginSettings, data.settings);
     Object.assign(PluginData, data);
     logger.logLevel = PluginSettings.logLevel;
