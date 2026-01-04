@@ -1,110 +1,112 @@
+[日本語版はこちら](./README.ja.md)
+
 # Weeknote Plugin for Obsidian
 
-週次レポートを効率的に管理するためのObsidianプラグインです。  
-Google Calendar連携、タスク管理、メモ機能を備えた統合週報管理ツールを提供します。
+Efficiently manage your weekly reports with this Obsidian plugin.  
+It provides an integrated tool for managing tasks, notes, and Google Calendar events in a weekly format.
 
-## ✨ 機能
+## ✨ Features
 
-### 📅 週報ビュー
-- **カレンダーナビゲーション**: 週単位でのブラウジング
-- **日別タブ**: Chrome風のタブインターフェースで曜日を切り替え
-- **レイアウト選択**: 2パネル/3パネル/横並び3パネル/T字パネルから選択可能
+### 📅 Weeknote View
+- **Calendar Navigation**: Browse through weeks easily.
+- **Daily Tabs**: Switch between days with a Chrome-like tab interface.
+- **Layout Selection**: Choose from 2-panel, 3-panel, 3-panel horizontal, or T-panel layouts.
 
-### 📋 タスク管理
-- **チェックリスト**: タスクの完了状態をトラッキング
-- **階層化対応**: インデントでサブタスクを管理
-- **キーボード操作**: 矢印キーで選択、Shift+矢印で移動/インデント変更
-- **ドラッグ&ドロップ風操作**: Shift+Delete で削除
+### 📋 Task Management
+- **Checklists**: Track the completion status of your tasks.
+- **Hierarchical Support**: Manage subtasks with indentation.
+- **Keyboard Navigation**: Select with arrow keys, reorder or change indentation with Shift + arrow keys.
+- **Quick Deletion**: Delete tasks with Shift + Delete.
 
-### 📝 クイックメモ
-- **タイムスタンプ付きメモ**: 自動的に時刻を記録
-- **リッチリンク対応**: URLを貼り付けると自動でMarkdownリンクに変換
-- **GitHub連携**: Issue/PRリンクをリッチなタグ表示
+### 📝 Quick Memo
+- **Timstamped Memos**: Automatically record the time for each entry.
+- **Rich Links**: Automatically converts URLs into Markdown links with titles.
+- **GitHub Integration**: Displays GitHub Issue/PR links as rich tags.
 
-### 📆 Google Calendar連携
-- **ICS URL対応**: Googleカレンダーの秘密URLで同期
-- **自動スケジュール表示**: 選択日の予定を自動表示
-- **イベント除外フィルター**: 正規表現でイベントを除外可能
+### 📆 Google Calendar Integration
+- **ICS URL Support**: Sync with your Google Calendar via secret ICS URL.
+- **Auto Schedule**: Automatically display events for the selected day.
+- **Event Filters**: Exclude specific events using regular expressions.
 
-### 🔗 GitHub連携
-- **Personal Access Token認証**: GitHubのIssue/PRを読み込み
-- **リッチタグ表示**: Issue/PRを見やすいタグで表示
-- **自動リンク変換**: タスクやメモにGitHub URLを貼ると自動でタイトルを取得
+### 🔗 GitHub Integration
+- **Personal Access Token Auth**: Load your private/public GitHub Issues and PRs.
+- **Rich Tag Display**: Visual tags for Issues and PRs for better readability.
+- **Auto Link Conversion**: Paste a GitHub URL to automatically fetch its title.
 
-## 📥 インストール
+## 📥 Installation
 
-### 手動インストール
+### Manual Installation
 
-1. リリースから `main.js`, `manifest.json`, `styles.css` をダウンロード
-2. Obsidianのプラグインフォルダに `weeknote` ディレクトリを作成
+1. Download `main.js`, `manifest.json`, and `styles.css` from the latest release.
+2. Create a `weeknote` folder in your Obsidian plugins directory:
    - macOS: `~/Library/Application Support/Obsidian/Vault/.obsidian/plugins/weeknote/`
    - Windows: `%APPDATA%\Obsidian\Vault\.obsidian\plugins\weeknote\`
-3. ダウンロードしたファイルをコピー
-4. Obsidianを再起動し、設定 → コミュニティプラグインからWeeknoteを有効化
+3. Copy the downloaded files into that folder.
+4. Restart Obsidian and enable "Weeknote" under Settings → Community plugins.
 
-## ⚙️ 設定
+## ⚙️ Settings
 
-### 週の設定
-- **週の開始日**: 月曜日または日曜日を選択
+### Week Settings
+- **Week Start Day**: Choose Monday or Sunday as the start of your week.
 
-### パス設定
-- **保存フォルダ**: 週報ファイルの保存先パス
-- **ファイル名形式**: Moment.js形式でカスタマイズ可能
+### Path Settings
+- **Save Folder**: Specify the path where weeknote files will be saved.
+- **Filename Format**: Customize the filename using Moment.js tokens.
 
-### カレンダー連携
-- **Google Calendar ICS URL**: カレンダーの秘密アドレスを設定
-- **除外パターン**: 正規表現でイベントをフィルター
+### Calendar Integration
+- **Google Calendar ICS URL**: Set your calendar's secret address.
+- **Exclude Patterns**: Filter out specific events using regex.
 
-### GitHub連携
-- **Personal Access Token**: GitHubのPATを設定
-- **APIキャッシュ期間**: APIレスポンスのキャッシュ時間
+### GitHub Integration
+- **Personal Access Token**: Set your GitHub PAT.
+- **API Cache Duration**: Set how long to cache API responses.
 
-### メモ設定
-- **タイムスタンプ形式**: Moment.js形式でカスタマイズ
-- **プレースホルダー**: 入力欄のプレースホルダーテキスト
-- **保存ボタンラベル**: ボタンのテキストをカスタマイズ
-- **URLの自動リンク化**: URLを自動でMarkdownリンクに変換
+### Memo Settings
+- **Timestamp Format**: Customize using Moment.js tokens.
+- **Placeholder**: Hint text for the memo input field.
+- **Post Button Label**: Customize the text on the post button.
+- **Auto-link URLs**: Automatically convert pasted URLs to Markdown links.
 
-## 🖥️ キーボードショートカット
+## 🖥️ Keyboard Shortcuts
 
-### タスク操作
-| キー | 動作 |
+### Task Operations
+| Key | Action |
 |------|------|
-| `↑` / `↓` | タスク選択 |
-| `Shift + ↑/↓` | タスクの順序変更 |
-| `Shift + ←/→` | インデントレベル変更 |
-| `Enter` | 編集モード |
-| `Shift + Delete` | タスク削除 |
-| `Escape` | 選択解除 |
+| `↑` / `↓` | Select task |
+| `Shift + ↑/↓` | Reorder task |
+| `Shift + ←/→` | Change indentation level |
+| `Enter` | Enter edit mode |
+| `Shift + Delete` | Delete task |
+| `Escape` | Deselect |
 
-### メモ操作
-| キー | 動作 |
+### Memo Operations
+| Key | Action |
 |------|------|
-| `Enter` | メモを投稿 / 編集確定 |
-| `Shift + Tab` | カード選択に移動 |
-| `Tab` | 次のカードへ移動 |
-| `Delete` | 選択したメモを削除 |
-| `Escape` | 選択解除 |
+| `Enter` | Post memo / Save edit |
+| `Shift + Tab` | Move to card selection |
+| `Tab` | Navigate between cards |
+| `Delete` | Delete selected memo |
+| `Escape` | Deselect |
 
-## 🔧 開発
+## 🔧 Development
 
-### ビルド
+### Build
 
 ```bash
 npm install
 npm run build
 ```
 
-### 開発モード
+### Dev Mode
 
 ```bash
 npm run dev
 ```
 
-## 📄 ライセンス
+## 📄 License
 
 MIT License
 
-## 🤝 コントリビューション
+## 🤝 Contributions
 
-Issue報告やPull Requestは歓迎します。
+Issues and Pull Requests are welcome!
