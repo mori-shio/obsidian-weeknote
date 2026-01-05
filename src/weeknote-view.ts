@@ -1820,53 +1820,19 @@ export class WeeknoteView extends ItemView {
 
   flattenTasks(
     tasks: TaskItem[], 
-    result: { task: TaskItem; level: number; guides: boolean[]; isLast: boolean }[] = [], 
-    level = 0,
-    guides: boolean[] = []
-  ): { task: TaskItem; level: number; guides: boolean[]; isLast: boolean }[] {
+    result: { task: TaskItem; level: number; isLast: boolean }[] = [], 
+    level = 0
+  ): { task: TaskItem; level: number; isLast: boolean }[] {
     tasks.forEach((task, index) => {
       // Use parsed level to respect Markdown indentation
       const displayLevel = (task.level !== undefined) ? task.level : level;
 
-      // Determine isLast visually:
-      // Loop through subsequent tasks to see if any share the same branch (>= level)
-      // If we encounter a shallower level (< level), this branch ends here.
-      let isLastVisual = true;
-      for (let i = index + 1; i < tasks.length; i++) {
-        const nextTask = tasks[i];
-        const nextLevel = (nextTask.level !== undefined) ? nextTask.level : level;
-        
-        if (nextLevel < displayLevel) {
-          // Found a shallower task (e.g. parent's sibling), so this visual branch ends
-          isLastVisual = true;
-          break;
-        }
-        if (nextLevel >= displayLevel) {
-          // Found a sibling or deeper task, so this branch continues
-          isLastVisual = false;
-          break;
-        }
-      }
-      
-      const isLast = isLastVisual;
+      // Determine if this is the last sibling in the current list
+      const isLast = (index === tasks.length - 1);
 
-      // Fill missing guides if this task is indented deeper than current context
-      const currentGuides = [...guides];
-      while (currentGuides.length < displayLevel) {
-        currentGuides.push(false);
-      }
+      result.push({ task, level: displayLevel, isLast });
       
-      result.push({ task, level: displayLevel, guides: currentGuides, isLast });
-      
-      // Prepare guides for children: extension of current guides + status of this item
-      // If this item is the last one visually (L-shape), suppress the parent's guide line for its children
-      // This creates the detached visual effect requested (L-shape closes the branch visually)
-      const nextGuides = [...currentGuides];
-      if (isLast && displayLevel > 0 && nextGuides.length >= displayLevel) {
-        nextGuides[displayLevel - 1] = false;
-      }
-
-      this.flattenTasks(task.children, result, displayLevel + 1, [...nextGuides, !isLast]);
+      this.flattenTasks(task.children, result, displayLevel + 1);
     });
     return result;
   }
@@ -1926,11 +1892,11 @@ export class WeeknoteView extends ItemView {
     }
   }
 
-  renderTaskGrid(container: HTMLElement, flatTasks: { task: TaskItem; level: number; guides: boolean[]; isLast: boolean }[]): void {
+  renderTaskGrid(container: HTMLElement, flatTasks: { task: TaskItem; level: number; isLast: boolean }[]): void {
     const grid = container.createDiv({ cls: "weeknote-task-grid" });
     
     for (let i = 0; i < flatTasks.length; i++) {
-      const { task, level, guides, isLast } = flatTasks[i];
+      const { task, level, isLast } = flatTasks[i];
       
       // Insert button before each row
       const insertBtn = grid.createDiv({ cls: "task-insert-btn" });
@@ -2018,13 +1984,38 @@ export class WeeknoteView extends ItemView {
       // Indent guides
       for (let j = 0; j < level; j++) {
         const guide = row.createDiv({ cls: "task-indent-guide" });
+        
+        // Slot j corresponds to Level (j + 1)
+        const targetLevel = j + 1;
+
         if (j === level - 1) {
-          // Connector to the item itself
-          guide.addClass(isLast ? "is-corner" : "is-tee");
+          // Connector to the item itself (Level L task, slot L-1)
+          // Look ahead to see if another task at exactly this level exists before a shallower level
+          let hasMoreSiblings = false;
+          for (let k = i + 1; k < flatTasks.length; k++) {
+              if (flatTasks[k].level < targetLevel) break;
+              if (flatTasks[k].level === targetLevel) {
+                  hasMoreSiblings = true;
+                  break;
+              }
+          }
+          guide.addClass(hasMoreSiblings ? "is-tee" : "is-corner");
         } else {
-          // Vertical line from parent levels
-          // Skip vertical line for root level (j=0) as requested
-          if (guides[j]) {
+          // Vertical line from parent levels (Look-ahead logic)
+          let showVertical = false;
+          for (let k = i + 1; k < flatTasks.length; k++) {
+              const nextTaskLevel = flatTasks[k].level;
+              if (nextTaskLevel < targetLevel) {
+                  showVertical = false;
+                  break;
+              }
+              if (nextTaskLevel === targetLevel) {
+                  showVertical = true;
+                  break;
+              }
+          }
+          
+          if (showVertical) {
             guide.addClass("is-vertical");
           }
         }
