@@ -365,14 +365,14 @@ export class WeeknoteView extends ItemView {
       cls: "weeknote-create-btn",
       text: `📝 ${t("createReport")}`,
     });
-    createBtn.addEventListener("click", () => this.createWeeknote());
+    createBtn.addEventListener("click", () => void this.createWeeknote());
 
     // Open Report Button
     const openBtn = actionSection.createEl("button", {
       cls: "weeknote-open-btn",
       text: `📂 ${t("openReport")}`,
     });
-    openBtn.addEventListener("click", () => this.openWeeknote());
+    openBtn.addEventListener("click", () => void this.openWeeknote());
 
     // Day tabs (Chrome-style)
     this.tabsContainer = container.createDiv({ cls: "weeknote-tabs" });
@@ -461,7 +461,7 @@ export class WeeknoteView extends ItemView {
       attr: { tabindex: "-1" }
     });
     this.saveBtn.setText(this.plugin.settings.saveButtonLabel);
-    this.saveBtn.addEventListener("click", () => this.saveMemo());
+    this.saveBtn.addEventListener("click", () => void this.saveMemo());
 
     // Task container (visible by default)
     this.taskContainer = memoSection.createDiv({ cls: "weeknote-task-container weeknote-flex" });
@@ -597,7 +597,7 @@ export class WeeknoteView extends ItemView {
     const buttonRow = this.inputArea.createDiv({ cls: "weeknote-buttons" });
     this.saveBtn = buttonRow.createEl("button", { cls: "weeknote-save-btn", attr: { tabindex: "-1" } });
     this.saveBtn.setText(this.plugin.settings.saveButtonLabel);
-    this.saveBtn.addEventListener("click", () => this.saveMemo());
+    this.saveBtn.addEventListener("click", () => void this.saveMemo());
 
     // Keyboard shortcut
     this.textArea.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -706,7 +706,7 @@ export class WeeknoteView extends ItemView {
     const buttonRow = this.inputArea.createDiv({ cls: "weeknote-buttons" });
     this.saveBtn = buttonRow.createEl("button", { cls: "weeknote-save-btn", attr: { tabindex: "-1" } });
     this.saveBtn.setText(this.plugin.settings.saveButtonLabel);
-    this.saveBtn.addEventListener("click", () => this.saveMemo());
+    this.saveBtn.addEventListener("click", () => void this.saveMemo());
 
     // Keyboard shortcut
     this.textArea.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -814,7 +814,7 @@ export class WeeknoteView extends ItemView {
     const buttons = this.inputArea.createDiv({ cls: "weeknote-buttons" });
     this.saveBtn = buttons.createEl("button", { cls: "weeknote-save-btn", attr: { tabindex: "-1" } });
     this.saveBtn.setText(this.plugin.settings.saveButtonLabel);
-    this.saveBtn.addEventListener("click", () => this.saveMemo());
+    this.saveBtn.addEventListener("click", () => void this.saveMemo());
 
     // Keyboard shortcut
     this.textArea.addEventListener("keydown", (e: KeyboardEvent) => {
