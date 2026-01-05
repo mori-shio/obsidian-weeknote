@@ -45,7 +45,7 @@ export class UrlProcessor {
                            title = `${pr.title} #${parsed.pr}`;
                            finalUrl = pr.html_url;
                        }
-                   } catch (gitErr) {
+                   } catch (_gitErr) {
                        // GitHub API failed, will fallback to HTML fetch
                    }
                }
@@ -57,7 +57,7 @@ export class UrlProcessor {
                    const html = await requestUrl({ url }).text;
                    const doc = new DOMParser().parseFromString(html, "text/html");
                    title = doc.title || "Link";
-               } catch (e) {
+               } catch (_e) {
                    // Fallback - use URL as is
                }
            }
@@ -70,7 +70,7 @@ export class UrlProcessor {
                const replacement = `[${title}](${finalUrl})`;
                newContent = newContent.substring(0, index) + replacement + newContent.substring(index + url.length);
            }
-        } catch(e) {
+        } catch(_e) {
            // Title fetch failed, URL will remain as-is
         }
     }

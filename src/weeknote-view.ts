@@ -4,24 +4,14 @@ import {
   moment,
   Notice,
   setIcon,
-  htmlToMarkdown,
   TFile
 } from "obsidian";
 
 import { UrlProcessor } from "./url-processor";
 import { createTag } from "./github-renderer";
-import { parseUrl } from "./github/url-parse";
-import { getIssue, getPullRequest } from "./github/github";
-import { getCache } from "./globals";
 import {
-  DaySection,
-  CalendarEvent,
-  DaySchedule,
-  WeeklySchedule,
   TaskItem,
-  WeeknoteSettings,
-  IWeeknotePlugin,
-  CopyFromButton
+  IWeeknotePlugin
 } from "./types";
 import { i18n, I18nKey } from "./i18n";
 import { VIEW_TYPE_WEEKNOTE } from "./constants";
@@ -1628,11 +1618,13 @@ export class WeeknoteView extends ItemView {
         container.addClass("is-empty-state");
         const emptyState = container.createDiv({ cls: "weeknote-empty is-tasks-empty" });
         // Override absolute positioning so it flows with add button
-        emptyState.style.position = "relative";
-        emptyState.style.inset = "auto";
-        emptyState.style.marginBottom = "8px";
-        emptyState.style.fontSize = "0.95em";
-        emptyState.style.fontWeight = "500";
+        emptyState.setCssStyles({
+          position: "relative",
+          inset: "auto",
+          marginBottom: "8px",
+          fontSize: "0.95em",
+          fontWeight: "500"
+        });
         
         emptyState.setText(t("copyFrom"));
         
@@ -1701,7 +1693,7 @@ export class WeeknoteView extends ItemView {
   renderRichContent(container: HTMLElement, text: string, disableDirectNavigation: boolean = false): void {
     renderRichContentHelper(container, text, disableDirectNavigation);
   }
-  async showCopyTasksOptions(container: HTMLElement, date: moment.Moment): Promise<void> {
+  showCopyTasksOptions(container: HTMLElement, date: moment.Moment): void {
     const wrapper = container.createDiv({ cls: "weeknote-copy-tasks-wrapper" });
     
     // Get configured buttons from settings
@@ -1790,7 +1782,7 @@ export class WeeknoteView extends ItemView {
             // Disable all buttons
             wrapper.querySelectorAll(".copy-task-option-btn").forEach(b => {
                 b.addClass("is-disabled");
-                (b as HTMLElement).style.pointerEvents = "none";
+                (b as HTMLElement).setCssStyles({ pointerEvents: "none" });
             });
             
             await this.plugin.copyTasksFromDate(targetDate, date);
@@ -2588,7 +2580,7 @@ export class WeeknoteView extends ItemView {
 
     input.addEventListener("keydown", (e) => {
       e.stopPropagation();
-      if (isComposing || e.isComposing || e.keyCode === 229) return;
+      if (isComposing || e.isComposing) return;
       
       if (e.key === "Enter") void submit();
       if (e.key === "Escape") cleanup();
@@ -2708,7 +2700,7 @@ export class WeeknoteView extends ItemView {
 
     input.addEventListener("keydown", (e) => {
       e.stopPropagation();
-      if (isComposing || e.isComposing || e.keyCode === 229) return;
+      if (isComposing || e.isComposing) return;
       
       if (e.key === "Enter") {
         e.preventDefault();
@@ -2914,9 +2906,11 @@ export class WeeknoteView extends ItemView {
     };
     
     // Position tooltip with fixed positioning
-    tooltip.style.position = "fixed";
-    tooltip.style.transform = "translate(-50%, -100%)";
-    tooltip.style.zIndex = "1000";
+    tooltip.setCssStyles({
+      position: "fixed",
+      transform: "translate(-50%, -100%)",
+      zIndex: "1000"
+    });
     
     // Initial position (also determines clipping mode)
     updatePosition();

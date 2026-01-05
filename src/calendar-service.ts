@@ -56,7 +56,7 @@ export class CalendarService {
       }
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       // Calendar fetch failed
       return null;
     }
