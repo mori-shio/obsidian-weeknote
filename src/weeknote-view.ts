@@ -520,10 +520,12 @@ export class WeeknoteView extends ItemView {
     this.reloadBtn = scheduleHeader.createEl("button", { cls: "weeknote-reload-btn" });
     setIcon(this.reloadBtn, "refresh-cw");
     this.reloadBtn.setAttribute("aria-label", "Reload schedule");
-    this.reloadBtn.addEventListener("click", () => void (async () => {
-      this.reloadBtn.addClass("is-loading");
-      await this.reloadSchedule();
-      this.reloadBtn.removeClass("is-loading"); })())
+    this.reloadBtn.addEventListener("click", () => {
+      void (async () => {
+        this.reloadBtn.addClass("is-loading");
+        await this.reloadSchedule();
+        this.reloadBtn.removeClass("is-loading");
+      })();
     });
     
     this.scheduleListContainer = this.scheduleSection.createDiv({ cls: "weeknote-schedule-list" });
@@ -1105,24 +1107,25 @@ export class WeeknoteView extends ItemView {
       
       // 3. Update Schedule (only for new files)
       if (isNew) {
-        // Show loading indicator on reload button
-        if (this.reloadBtn) this.reloadBtn.addClass("is-loading");
-        try {
-          const schedule = await this.plugin.calendarService.fetchWeeklySchedule(weekStart);
-          if (schedule) {
-            for (let i = 0; i < 7; i++) {
-              const date = weekStart.clone().add(i, "days");
-              await this.plugin.updateScheduleInReport(date, schedule);
+        void (async () => {
+          // Show loading indicator on reload button
+          if (this.reloadBtn) this.reloadBtn.addClass("is-loading");
+          try {
+            const schedule = await this.plugin.calendarService.fetchWeeklySchedule(weekStart);
+            if (schedule) {
+              for (let i = 0; i < 7; i++) {
+                const date = weekStart.clone().add(i, "days");
+                await this.plugin.updateScheduleInReport(date, schedule);
+              }
             }
+          } catch {
+            // Schedule fetch failed
+            new Notice(t("scheduleSyncFailed") || "Failed to sync schedule");
+          } finally {
+            if (this.reloadBtn) this.reloadBtn.removeClass("is-loading");
           }
-        } catch {
-          // Schedule fetch failed
-          new Notice(t("scheduleSyncFailed") || "Failed to sync schedule");
-        } finally {
-          if (this.reloadBtn) this.reloadBtn.removeClass("is-loading"); })())
-        }
+        })();
       }
-      
       // Refresh sidebar
       setTimeout(async () => {
         await this.refreshContent();
