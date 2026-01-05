@@ -10,7 +10,7 @@ class ICSParser {
 
   private parse(): void {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Worker environment requires dynamic import of ical.js
       const ICAL = require("ical.js");
       const jcalData = ICAL.parse(this.icsData);
       this.icalComponent = new ICAL.Component(jcalData);
@@ -47,7 +47,7 @@ class ICSParser {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Worker environment requires dynamic import of ical.js
       const ICAL = require("ical.js");
       const component = this.icalComponent as { getAllSubcomponents: (type: string) => unknown[] };
       const vevents = component.getAllSubcomponents("vevent");

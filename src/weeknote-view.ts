@@ -119,47 +119,59 @@ export class WeeknoteView extends ItemView {
   // Create help panel content using i18n (for Task section)
   createHelpPanel(container: HTMLElement): void {
     const t = this.t.bind(this);
-    container.innerHTML = `
-      <div class="help-title">${t("helpTitle")}</div>
-      
-      <div class="help-section-title">${t("helpNoSelection")}</div>
-      <div class="help-item"><span class="help-key">↑↓</span> ${t("helpArrowSelect")}</div>
-      
-      <div class="help-section-title">${t("helpWithSelection")}</div>
-      <div class="help-item"><span class="help-key">↑↓</span> ${t("helpArrowMove")}</div>
-      <div class="help-item"><span class="help-key">Shift + ↑↓</span> ${t("helpShiftArrow")}</div>
-      <div class="help-item"><span class="help-key">Shift + ←→</span> ${t("helpShiftIndent")}</div>
-      <div class="help-item"><span class="help-key">Shift + Delete</span> ${t("helpShiftDelete")}</div>
-      <div class="help-item"><span class="help-key">Enter</span> ${t("helpEnterEdit")}</div>
-      <div class="help-item"><span class="help-key">Esc</span> ${t("helpEsc")}</div>
-      
-      <div class="help-section-title">${t("helpEditing")}</div>
-      <div class="help-item"><span class="help-key">Enter</span> ${t("helpEnterSave")}</div>
-      <div class="help-item"><span class="help-key">Esc</span> ${t("helpEscCancel")}</div>
-    `;
+    container.empty();
+    
+    const createHelpItem = (key: string, text: string) => {
+      const item = container.createDiv({ cls: "help-item" });
+      item.createSpan({ cls: "help-key", text: key });
+      item.appendText(" " + text);
+    };
+    
+    container.createDiv({ cls: "help-title", text: t("helpTitle") });
+    
+    container.createDiv({ cls: "help-section-title", text: t("helpNoSelection") });
+    createHelpItem("↑↓", t("helpArrowSelect"));
+    
+    container.createDiv({ cls: "help-section-title", text: t("helpWithSelection") });
+    createHelpItem("↑↓", t("helpArrowMove"));
+    createHelpItem("Shift + ↑↓", t("helpShiftArrow"));
+    createHelpItem("Shift + ←→", t("helpShiftIndent"));
+    createHelpItem("Shift + Delete", t("helpShiftDelete"));
+    createHelpItem("Enter", t("helpEnterEdit"));
+    createHelpItem("Esc", t("helpEsc"));
+    
+    container.createDiv({ cls: "help-section-title", text: t("helpEditing") });
+    createHelpItem("Enter", t("helpEnterSave"));
+    createHelpItem("Esc", t("helpEscCancel"));
   }
 
   // Create help panel content for Memo section
   createMemoHelpPanel(container: HTMLElement): void {
     const t = this.t.bind(this);
-    container.innerHTML = `
-      <div class="help-title">${t("memoHelpTitle")}</div>
-      
-      <div class="help-section-title">${t("memoHelpUnfocused")}</div>
-      <div class="help-item"><span class="help-key">Enter</span> ${t("memoHelpEnterFocus")}</div>
-      <div class="help-item"><span class="help-key">Tab / Shift+Tab</span> ${t("memoHelpEnterFocus")}</div>
-      
-      <div class="help-section-title">${t("memoHelpInputMode")}</div>
-      <div class="help-item"><span class="help-key">Enter</span> ${t("memoHelpEnterAdd")}</div>
-      <div class="help-item"><span class="help-key">Esc</span> ${t("memoHelpEscCancel")}</div>
-      <div class="help-item"><span class="help-key">Shift+Tab</span> ${t("memoHelpShiftTabToCard")}</div>
-      
-      <div class="help-section-title">${t("memoHelpCardSelected")}</div>
-      <div class="help-item"><span class="help-key">Enter</span> ${t("memoHelpEnterEdit")}</div>
-      <div class="help-item"><span class="help-key">Delete</span> ${t("memoHelpDelete")}</div>
-      <div class="help-item"><span class="help-key">Esc</span> ${t("memoHelpEscToInput")}</div>
-      <div class="help-item"><span class="help-key">Tab / Shift+Tab</span> ${t("memoHelpTabMove")}</div>
-    `;
+    container.empty();
+    
+    const createHelpItem = (key: string, text: string) => {
+      const item = container.createDiv({ cls: "help-item" });
+      item.createSpan({ cls: "help-key", text: key });
+      item.appendText(" " + text);
+    };
+    
+    container.createDiv({ cls: "help-title", text: t("memoHelpTitle") });
+    
+    container.createDiv({ cls: "help-section-title", text: t("memoHelpUnfocused") });
+    createHelpItem("Enter", t("memoHelpEnterFocus"));
+    createHelpItem("Tab / Shift+Tab", t("memoHelpEnterFocus"));
+    
+    container.createDiv({ cls: "help-section-title", text: t("memoHelpInputMode") });
+    createHelpItem("Enter", t("memoHelpEnterAdd"));
+    createHelpItem("Esc", t("memoHelpEscCancel"));
+    createHelpItem("Shift+Tab", t("memoHelpShiftTabToCard"));
+    
+    container.createDiv({ cls: "help-section-title", text: t("memoHelpCardSelected") });
+    createHelpItem("Enter", t("memoHelpEnterEdit"));
+    createHelpItem("Delete", t("memoHelpDelete"));
+    createHelpItem("Esc", t("memoHelpEscToInput"));
+    createHelpItem("Tab / Shift+Tab", t("memoHelpTabMove"));
   }
 
   // Adjust help panel position using Fixed positioning to escape overflow
@@ -182,7 +194,7 @@ export class WeeknoteView extends ItemView {
       
       // Store the button with a unique ID for future reference
       if (!helpBtn.id) {
-        helpBtn.id = `help-btn-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        helpBtn.id = `help-btn-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
       }
       helpPanel.dataset.helpBtnId = helpBtn.id;
     }
@@ -193,8 +205,7 @@ export class WeeknoteView extends ItemView {
     }
 
     // Reset to origin for measurement
-    helpPanel.style.left = "0";
-    helpPanel.style.top = "0";
+    helpPanel.setCssStyles({ left: "0", top: "0" });
     
     // Wait for DOM update to get accurate dimensions
     requestAnimationFrame(() => {
@@ -225,8 +236,7 @@ export class WeeknoteView extends ItemView {
       }
       
       // Apply fixed coordinates
-      helpPanel.style.top = `${topPos}px`;
-      helpPanel.style.left = `${leftPos}px`;
+      helpPanel.setCssStyles({ top: `${topPos}px`, left: `${leftPos}px` });
     });
   }
 
@@ -420,8 +430,7 @@ export class WeeknoteView extends ItemView {
     this.viewToggleBtn.addEventListener("click", () => this.toggleMemoTaskView());
 
     // Posted memos list with scroll shadow wrapper (hidden by default - TASK view is default)
-    this.memoListWrapper = memoSection.createDiv({ cls: "weeknote-memo-list-wrapper" });
-    this.memoListWrapper.style.display = "none";
+    this.memoListWrapper = memoSection.createDiv({ cls: "weeknote-memo-list-wrapper weeknote-hidden" });
     this.memoListContainer = this.memoListWrapper.createDiv({ cls: "weeknote-memo-list" });
     await this.loadDayMemos(this.memoListContainer, this.selectedDate);
     
@@ -450,8 +459,7 @@ export class WeeknoteView extends ItemView {
     }, 150);
 
     // Input area (hidden by default - TASK view is default)
-    this.inputArea = memoSection.createDiv({ cls: "weeknote-input-area" });
-    this.inputArea.style.display = "none";
+    this.inputArea = memoSection.createDiv({ cls: "weeknote-input-area weeknote-hidden" });
     
     const editorWrapper = this.inputArea.createDiv({ cls: "weeknote-editor" });
     this.textArea = editorWrapper.createEl("textarea", {
@@ -467,8 +475,7 @@ export class WeeknoteView extends ItemView {
     this.saveBtn.addEventListener("click", () => this.saveMemo());
 
     // Task container (visible by default)
-    this.taskContainer = memoSection.createDiv({ cls: "weeknote-task-container" });
-    this.taskContainer.style.display = "flex"; // Visible by default
+    this.taskContainer = memoSection.createDiv({ cls: "weeknote-task-container weeknote-flex" });
     this.taskListWrapper = this.taskContainer.createDiv({ cls: "weeknote-task-list-wrapper" });
     this.taskListContainer = this.taskListWrapper.createDiv({ cls: "weeknote-task-list" });
     await this.loadDayTasks(this.taskListContainer, this.selectedDate);
@@ -564,7 +571,7 @@ export class WeeknoteView extends ItemView {
     
     // Memo list
     this.memoListWrapper = memoPanel.createDiv({ cls: "weeknote-memo-list-wrapper" });
-    this.memoListWrapper.style.display = ""; // Always visible in three-panel
+    // Always visible in three-panel mode (no weeknote-hidden class)
     this.memoListContainer = this.memoListWrapper.createDiv({ cls: "weeknote-memo-list" });
     await this.loadDayMemos(this.memoListContainer, this.selectedDate);
     
@@ -591,7 +598,7 @@ export class WeeknoteView extends ItemView {
 
     // Memo input area (always visible in three-panel)
     this.inputArea = memoPanel.createDiv({ cls: "weeknote-input-area" });
-    this.inputArea.style.display = ""; // Always visible
+    // Already visible (no weeknote-hidden class)
     
     const editorWrapper = this.inputArea.createDiv({ cls: "weeknote-editor" });
     this.textArea = editorWrapper.createEl("textarea", {
@@ -673,7 +680,7 @@ export class WeeknoteView extends ItemView {
     
     // Memo list
     this.memoListWrapper = memoPanel.createDiv({ cls: "weeknote-memo-list-wrapper" });
-    this.memoListWrapper.style.display = "";
+    // Always visible in horizontal layout (no weeknote-hidden class)
     this.memoListContainer = this.memoListWrapper.createDiv({ cls: "weeknote-memo-list" });
     await this.loadDayMemos(this.memoListContainer, this.selectedDate);
     
@@ -700,7 +707,7 @@ export class WeeknoteView extends ItemView {
 
     // Memo input area
     this.inputArea = memoPanel.createDiv({ cls: "weeknote-input-area" });
-    this.inputArea.style.display = "";
+    // Already visible (no weeknote-hidden class)
     
     const editorWrapper = this.inputArea.createDiv({ cls: "weeknote-editor" });
     this.textArea = editorWrapper.createEl("textarea", {
@@ -1003,21 +1010,18 @@ export class WeeknoteView extends ItemView {
     }
     // Reset schedule section height to auto (in case resizer was used)
     if (this.scheduleSection) {
-      this.scheduleSection.style.height = "";
-      this.scheduleSection.style.flex = "";
+      this.scheduleSection.setCssStyles({ height: "", flex: "" });
     }
     
     // Reset heights for three-panel-horizontal layout
     if (this.plugin.settings.layoutMode === "three-panel-horizontal") {
       if (this.taskContainer) {
-        this.taskContainer.style.height = "";
-        this.taskContainer.style.flex = "";
+        this.taskContainer.setCssStyles({ height: "", flex: "" });
       }
       // Reset Memo Panel
       const memoPanel = this.containerEl.querySelector(".weeknote-three-panel-horizontal .weeknote-memo-bottom") as HTMLElement;
       if (memoPanel) {
-        memoPanel.style.height = "";
-        memoPanel.style.flex = "";
+        memoPanel.setCssStyles({ height: "", flex: "" });
       }
     }
     
@@ -1026,18 +1030,15 @@ export class WeeknoteView extends ItemView {
       // Reset bottom row height
       const bottomRow = this.containerEl.querySelector(".weeknote-t-panel-bottom-row") as HTMLElement;
       if (bottomRow) {
-        bottomRow.style.height = "";
-        bottomRow.style.flex = "";
+        bottomRow.setCssStyles({ height: "", flex: "" });
       }
       // Reset Task and Memo widths
       if (this.taskContainer) {
-        this.taskContainer.style.width = "";
-        this.taskContainer.style.flex = "";
+        this.taskContainer.setCssStyles({ width: "", flex: "" });
       }
       const memoPanel = this.containerEl.querySelector(".weeknote-t-panel .weeknote-memo-bottom") as HTMLElement;
       if (memoPanel) {
-        memoPanel.style.width = "";
-        memoPanel.style.flex = "";
+        memoPanel.setCssStyles({ width: "", flex: "" });
       }
     }
     // Update scroll shadows
@@ -1586,8 +1587,10 @@ export class WeeknoteView extends ItemView {
             
             const rect = locationEl.getBoundingClientRect();
             const tooltipRect = tooltip.getBoundingClientRect();
-            tooltip.style.left = `${rect.left + rect.width / 2 - tooltipRect.width / 2}px`;
-            tooltip.style.top = `${rect.top - tooltipRect.height - 8}px`;
+            tooltip.setCssStyles({
+              left: `${rect.left + rect.width / 2 - tooltipRect.width / 2}px`,
+              top: `${rect.top - tooltipRect.height - 8}px`
+            });
             
             locationEl.addEventListener("mouseleave", () => {
               tooltip.remove();
@@ -1698,13 +1701,6 @@ export class WeeknoteView extends ItemView {
   async showCopyTasksOptions(container: HTMLElement, date: moment.Moment): Promise<void> {
     const wrapper = container.createDiv({ cls: "weeknote-copy-tasks-wrapper" });
     
-    // Force layout styles inline to ensure they are applied
-    wrapper.style.display = "flex";
-    wrapper.style.flexWrap = "nowrap";
-    wrapper.style.gap = "6px";
-    wrapper.style.width = "auto";
-    wrapper.style.marginTop = "4px";
-    
     // Get configured buttons from settings
     const buttons = this.plugin.settings.copyFromButtons || [];
     
@@ -1733,44 +1729,7 @@ export class WeeknoteView extends ItemView {
         btn.setAttr("role", "button");
         btn.setAttr("tabindex", "0");
         
-        // Inline styles for button - compact design with accent border
-        btn.style.display = "flex";
-        btn.style.flexDirection = "column";
-        btn.style.justifyContent = "center";
-        btn.style.alignItems = "center";
-        btn.style.flex = "0 0 auto";
-        btn.style.minWidth = "70px";
-        btn.style.padding = "6px 10px";
-        btn.style.margin = "0";
-        // White background with accent border
-        btn.style.backgroundColor = "white";
-        btn.style.color = "var(--text-normal)";
-        btn.style.border = "1.5px solid var(--interactive-accent)";
-        btn.style.borderRadius = "6px";
-        btn.style.cursor = "pointer";
-        btn.style.boxShadow = "0 1px 2px rgba(0,0,0,0.05)";
-        btn.style.userSelect = "none";
-        btn.style.transition = "all 0.15s ease";
-
-        // JS Hover
-        btn.onmouseenter = () => {
-            if (!btn.hasClass("is-disabled")) {
-                btn.style.backgroundColor = "var(--interactive-accent-hover)";
-                btn.style.borderColor = "var(--interactive-accent)";
-                btn.style.color = "white";
-                btn.style.transform = "translateY(-1px)";
-                btn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.15)";
-            }
-        };
-        btn.onmouseleave = () => {
-             if (!btn.hasClass("is-disabled")) {
-                btn.style.backgroundColor = "white";
-                btn.style.borderColor = "var(--interactive-accent)";
-                btn.style.color = "var(--text-normal)";
-                btn.style.transform = "translateY(0)";
-                btn.style.boxShadow = "0 1px 2px rgba(0,0,0,0.05)";
-             }
-        };
+        // Styles are applied via CSS classes (.copy-task-option-btn, :hover, :active)
         
         // Translate button label based on type and value
         const t = this.t.bind(this);
@@ -1853,7 +1812,7 @@ export class WeeknoteView extends ItemView {
         btn.addEventListener("keydown", (e) => {
              if (e.key === "Enter" || e.key === " ") {
                  e.preventDefault();
-                 clickHandler(e);
+                 void clickHandler(e);
              }
         });
     }
@@ -2502,7 +2461,7 @@ export class WeeknoteView extends ItemView {
 
     // Hide the add button temporarily
     const addBtn = container.querySelector(".weeknote-add-task-btn") as HTMLElement;
-    if (addBtn) addBtn.style.display = "none";
+    if (addBtn) addBtn.addClass("weeknote-hidden");
 
     // Create card-style input row
     const inputRow = document.createElement("div");
@@ -2593,7 +2552,7 @@ export class WeeknoteView extends ItemView {
       
       // Restore add button and focus it
       if (addBtn) {
-          addBtn.style.display = "flex";
+          addBtn.removeClass("weeknote-hidden");
           addBtn.addClass("is-selected");
           addBtn.focus({ preventScroll: true });
       } else if (!container.querySelector(".weeknote-add-task-btn")) {
@@ -2622,7 +2581,7 @@ export class WeeknoteView extends ItemView {
       
       // Restore add button first
       if (addBtn) {
-        addBtn.style.display = "flex";
+        addBtn.removeClass("weeknote-hidden");
       }
       
       await this.refreshContent();
@@ -2638,7 +2597,7 @@ export class WeeknoteView extends ItemView {
       }
     };
 
-    confirmBtn.addEventListener("click", (e) => { e.stopPropagation(); submit(); });
+    confirmBtn.addEventListener("click", (e) => { e.stopPropagation(); void submit(); });
     cancelBtn.addEventListener("click", (e) => { e.stopPropagation(); cleanup(); });
     
     let isComposing = false;
@@ -2649,7 +2608,7 @@ export class WeeknoteView extends ItemView {
       e.stopPropagation();
       if (isComposing || e.isComposing || e.keyCode === 229) return;
       
-      if (e.key === "Enter") submit();
+      if (e.key === "Enter") void submit();
       if (e.key === "Escape") cleanup();
     });
     
@@ -2760,7 +2719,7 @@ export class WeeknoteView extends ItemView {
       }
     };
     
-    saveBtn.addEventListener("click", (e) => { e.stopPropagation(); save(); });
+    saveBtn.addEventListener("click", (e) => { e.stopPropagation(); void save(); });
     cancelBtn.addEventListener("click", (e) => { e.stopPropagation(); cancel(); });
 
     let isComposing = false;
@@ -2773,7 +2732,7 @@ export class WeeknoteView extends ItemView {
       
       if (e.key === "Enter") {
         e.preventDefault();
-        save();
+        void save();
       } else if (e.key === "Escape") {
         e.preventDefault();
         cancel(true);
@@ -2899,8 +2858,7 @@ export class WeeknoteView extends ItemView {
       const left = rect.left + clickOffsetX;
       const top = rect.top - 8; // 8px gap above row
       
-      tooltip.style.left = `${left}px`;
-      tooltip.style.top = `${top}px`;
+      tooltip.setCssStyles({ left: `${left}px`, top: `${top}px` });
       
       // Determine clipping bounds
       const tooltipRect = tooltip.getBoundingClientRect();
@@ -3069,8 +3027,7 @@ export class WeeknoteView extends ItemView {
       const left = rect.left + clickOffsetX;
       const top = rect.top - 8; // 8px gap above card
       
-      tooltip.style.left = `${left}px`;
-      tooltip.style.top = `${top}px`;
+      tooltip.setCssStyles({ left: `${left}px`, top: `${top}px` });
       
       // Apply clipping if needed
       if (wrapperRect) {
@@ -3084,9 +3041,9 @@ export class WeeknoteView extends ItemView {
         const clipBottom = bottomOverflow - arrowHeight;
         
         if (clipTop > 0 || bottomOverflow > 0 || clipLeft > 0 || clipRight > 0) {
-          tooltip.style.clipPath = `inset(${clipTop}px ${clipRight}px ${clipBottom}px ${clipLeft}px)`;
+          tooltip.setCssStyles({ clipPath: `inset(${clipTop}px ${clipRight}px ${clipBottom}px ${clipLeft}px)` });
         } else {
-          tooltip.style.clipPath = "";
+          tooltip.setCssStyles({ clipPath: "" });
         }
       }
     };
@@ -3279,7 +3236,7 @@ export class WeeknoteView extends ItemView {
           await this.refreshTaskList(insertBeforeLineIndex);
         };
         
-        confirmBtn.addEventListener("click", (e) => { e.stopPropagation(); submit(); });
+        confirmBtn.addEventListener("click", (e) => { e.stopPropagation(); void submit(); });
         cancelBtn.addEventListener("click", (e) => { e.stopPropagation(); cleanup(); });
         
         let isComposing = false;
@@ -3291,7 +3248,7 @@ export class WeeknoteView extends ItemView {
           // Ignore if IME is composing
           if (isComposing || e.isComposing || e.keyCode === 229) return;
 
-          if (e.key === "Enter") submit();
+          if (e.key === "Enter") void submit();
           if (e.key === "Escape") cleanup();
         });
         
@@ -3486,7 +3443,7 @@ export class WeeknoteView extends ItemView {
     
     saveBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      save();
+      void save();
     });
     cancelBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -3503,7 +3460,7 @@ export class WeeknoteView extends ItemView {
 
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        save();
+        void save();
       } else if (e.key === "Escape") {
         e.preventDefault();
         cancel(true); // Keep selection mode when pressing ESC
@@ -3514,12 +3471,10 @@ export class WeeknoteView extends ItemView {
     const autoResize = () => {
       const hasNewlines = input.value.includes("\n");
       if (hasNewlines) {
-        input.style.height = "auto";
-        input.style.height = `${Math.min(input.scrollHeight, 150)}px`;
-        input.style.overflowY = input.scrollHeight > 150 ? "auto" : "hidden";
+        input.setCssStyles({ height: "auto" });
+        input.setCssStyles({ height: `${Math.min(input.scrollHeight, 150)}px`, overflowY: input.scrollHeight > 150 ? "auto" : "hidden" });
       } else {
-        input.style.height = "22px";
-        input.style.overflowY = "hidden";
+        input.setCssStyles({ height: "22px", overflowY: "hidden" });
       }
     };
     input.addEventListener("input", autoResize);
@@ -3559,7 +3514,7 @@ export class WeeknoteView extends ItemView {
 
     this.updateWeekDisplay();
     this.renderTabs(weekStart, days); // This updates tabs visually
-    this.refreshContent(); // This loads memos/schedules for the (potentially new) selected day within new week
+    void this.refreshContent(); // This loads memos/schedules for the (potentially new) selected day within new week
   }
 
   updateWeekDisplay(): void {
@@ -3583,14 +3538,15 @@ export class WeeknoteView extends ItemView {
       if (this.helpPanel) this.createHelpPanel(this.helpPanel);
       
       // Hide memo elements
-      this.memoListWrapper.style.display = "none";
-      this.inputArea.style.display = "none";
+      this.memoListWrapper.addClass("weeknote-hidden");
+      this.inputArea.addClass("weeknote-hidden");
       
       // Show task container and help button
-      this.taskContainer.style.display = "flex";
-      if (this.helpRow) this.helpRow.style.display = "";
+      this.taskContainer.removeClass("weeknote-hidden");
+      this.taskContainer.addClass("weeknote-flex");
+      if (this.helpRow) this.helpRow.removeClass("weeknote-hidden");
       // Reset toggle button margin (helpRow has margin-left: auto)
-      this.viewToggleBtn.style.marginLeft = "";
+      this.viewToggleBtn.setCssStyles({ marginLeft: "" });
     } else {
       // Switch to MEMO view
       this.currentMemoView = "memo";
@@ -3601,8 +3557,8 @@ export class WeeknoteView extends ItemView {
       if (this.helpPanel) this.createMemoHelpPanel(this.helpPanel);
       
       // Show memo elements
-      this.memoListWrapper.style.display = "";
-      this.inputArea.style.display = "";
+      this.memoListWrapper.removeClass("weeknote-hidden");
+      this.inputArea.removeClass("weeknote-hidden");
       
       // Scroll to bottom after showing (need to wait for layout)
       requestAnimationFrame(() => {
@@ -3613,10 +3569,11 @@ export class WeeknoteView extends ItemView {
       });
       
       // Hide task container but KEEP help button visible
-      this.taskContainer.style.display = "none";
-      if (this.helpRow) this.helpRow.style.display = "";
+      this.taskContainer.addClass("weeknote-hidden");
+      this.taskContainer.removeClass("weeknote-flex");
+      if (this.helpRow) this.helpRow.removeClass("weeknote-hidden");
       // Keep toggle button positioned naturally
-      this.viewToggleBtn.style.marginLeft = "";
+      this.viewToggleBtn.setCssStyles({ marginLeft: "" });
     }
   }
 

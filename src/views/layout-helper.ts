@@ -28,10 +28,8 @@ export function setupVerticalResizer(
     
     const newRightWidth = totalWidth - newLeftWidth;
     
-    leftPanel.style.width = `${newLeftWidth}px`;
-    leftPanel.style.flex = `0 0 ${newLeftWidth}px`;
-    rightPanel.style.width = `${newRightWidth}px`;
-    rightPanel.style.flex = `0 0 ${newRightWidth}px`;
+    leftPanel.setCssStyles({ width: `${newLeftWidth}px`, flex: `0 0 ${newLeftWidth}px` });
+    rightPanel.setCssStyles({ width: `${newRightWidth}px`, flex: `0 0 ${newRightWidth}px` });
   };
 
   const onMouseUp = () => {
@@ -74,9 +72,8 @@ export function setupScheduleResizer(
     // ScheduleSection min 50px, max 400px
     // RecentSection min 50px
     if (newScheduleHeight >= 50 && newScheduleHeight <= 400 && newRecentHeight >= 50) {
-      scheduleSection.style.height = `${newScheduleHeight}px`;
-      scheduleSection.style.flex = "0 0 auto";
-      recentSection.style.flex = "1 1 auto";
+      scheduleSection.setCssStyles({ height: `${newScheduleHeight}px`, flex: "0 0 auto" });
+      recentSection.setCssStyles({ flex: "1 1 auto" });
     }
   };
 
@@ -116,10 +113,8 @@ export function setupLeftPanelResizer(
     
     // Min 80px for both panels
     if (newScheduleWidth >= 80 && newTaskWidth >= 80) {
-      schedulePanel.style.width = `${newScheduleWidth}px`;
-      schedulePanel.style.flex = `0 0 ${newScheduleWidth}px`;
-      taskPanel.style.width = `${newTaskWidth}px`;
-      taskPanel.style.flex = `0 0 ${newTaskWidth}px`;
+      schedulePanel.setCssStyles({ width: `${newScheduleWidth}px`, flex: `0 0 ${newScheduleWidth}px` });
+      taskPanel.setCssStyles({ width: `${newTaskWidth}px`, flex: `0 0 ${newTaskWidth}px` });
     }
   };
 
@@ -160,8 +155,7 @@ export function setupRightPanelResizer(
     const maxWidth = containerWidth * 0.5;
     
     if (newWidth >= 80 && newWidth <= maxWidth) {
-      taskPanel.style.width = `${newWidth}px`;
-      taskPanel.style.flex = `0 0 ${newWidth}px`;
+      taskPanel.setCssStyles({ width: `${newWidth}px`, flex: `0 0 ${newWidth}px` });
     }
   };
 
@@ -176,8 +170,7 @@ export function setupRightPanelResizer(
     startWidth = taskPanel.offsetWidth;
     // Fix schedule width
     const scheduleWidth = schedulePanel.offsetWidth;
-    schedulePanel.style.width = `${scheduleWidth}px`;
-    schedulePanel.style.flex = `0 0 ${scheduleWidth}px`;
+    schedulePanel.setCssStyles({ width: `${scheduleWidth}px`, flex: `0 0 ${scheduleWidth}px` });
     resizer.addClass("is-dragging");
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
@@ -210,24 +203,21 @@ export function setupHorizontalResizer(
     const _newBottomHeight = totalHeight - newTopHeight;
   
     // 1. Try applying height to TOP panel
-    topPanel.style.height = `${newTopHeight}px`;
-    topPanel.style.flex = `0 0 ${newTopHeight}px`;
+    topPanel.setCssStyles({ height: `${newTopHeight}px`, flex: `0 0 ${newTopHeight}px` });
     
     // Check actual top height (in case of min-height constraints)
     const actualTopHeight = topPanel.offsetHeight;
     const expectedBottomHeight = totalHeight - actualTopHeight;
     
     // 2. Apply calculated remainder to BOTTOM panel
-    bottomPanel.style.height = `${expectedBottomHeight}px`;
-    bottomPanel.style.flex = `0 0 ${expectedBottomHeight}px`;
+    bottomPanel.setCssStyles({ height: `${expectedBottomHeight}px`, flex: `0 0 ${expectedBottomHeight}px` });
     
     // 3. Check actual bottom height (in case of min-height constraints)
     // If bottom panel refused to shrink, push back on top panel
     const actualBottomHeight = bottomPanel.offsetHeight;
     if (actualBottomHeight > expectedBottomHeight) {
        const adjustedTopHeight = totalHeight - actualBottomHeight;
-       topPanel.style.height = `${adjustedTopHeight}px`;
-       topPanel.style.flex = `0 0 ${adjustedTopHeight}px`;
+       topPanel.setCssStyles({ height: `${adjustedTopHeight}px`, flex: `0 0 ${adjustedTopHeight}px` });
     }
   };
 

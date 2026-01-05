@@ -268,7 +268,10 @@ export class GitHubApi {
 			return this.getPaginationMeta(response);
 		} catch (err) {
 			logger.debug(err);
-			return Promise.reject(new RequestError(err as Error));
+			if (err instanceof Error) {
+				return Promise.reject(new RequestError(err));
+			}
+			return Promise.reject(new RequestError(new Error(String(err))));
 		}
 	}
 
@@ -303,7 +306,7 @@ export class GitHubApi {
 	private addParams(href: string, params: Record<string, unknown>): string {
 		const url = new URL(href);
 		for (const [key, value] of Object.entries(params)) {
-			url.searchParams.set(key, `${value}`);
+			url.searchParams.set(key, String(value));
 		}
 		return url.toString();
 	}

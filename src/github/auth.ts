@@ -40,7 +40,7 @@ function getBody(body: BodyInit | null | undefined): string | ArrayBuffer | unde
 	}
 }
 
-async function doFetch(url: RequestInfo | URL, options?: RequestInit | undefined): Promise<Response> {
+async function doFetch(url: RequestInfo | URL, options?: RequestInit): Promise<Response> {
 	// Octokit always uses a url + options, not a Request object
 	if (typeof url !== "string") {
 		throw new Error("Something has gone horribly wrong and fetch has received unexpected arguments.");

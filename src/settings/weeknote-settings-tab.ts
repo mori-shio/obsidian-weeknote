@@ -59,9 +59,7 @@ export class WeeknoteSettingTab extends PluginSettingTab {
     const t = this.t.bind(this);
     const tFrag = this.tFrag.bind(this);
 
-    new Setting(containerEl).setName("Weeknote").setHeading();
-
-    // General Settings
+    // General Settings (first heading, no need for plugin name)
     new Setting(containerEl).setName(t("generalSettings")).setHeading();
 
     new Setting(containerEl)
@@ -334,13 +332,11 @@ export class WeeknoteSettingTab extends PluginSettingTab {
     previewHeader.createEl("span", { text: t("templatePreview") });
     
     const buttonGroup = previewHeader.createDiv({ cls: "template-preview-buttons" });
-    const refreshBtn = buttonGroup.createEl("button", { cls: "template-preview-refresh clickable-icon" });
+    const refreshBtn = buttonGroup.createEl("button", { cls: "template-preview-refresh clickable-icon weeknote-hidden" });
     setIcon(refreshBtn, "refresh-cw");
-    refreshBtn.style.display = "none";
     const toggleBtn = buttonGroup.createEl("button", { text: t("show"), cls: "template-preview-toggle" });
     
-    const templatePreviewContent = previewContainer.createDiv({ cls: "template-preview-content" });
-    templatePreviewContent.style.display = "none";
+    const templatePreviewContent = previewContainer.createDiv({ cls: "template-preview-content weeknote-hidden" });
     
     refreshBtn.addEventListener("click", () => {
       refreshBtn.addClass("spinning");
@@ -351,15 +347,15 @@ export class WeeknoteSettingTab extends PluginSettingTab {
     });
     
     toggleBtn.addEventListener("click", () => {
-      if (templatePreviewContent.style.display === "none") {
-        templatePreviewContent.style.display = "block";
+      if (templatePreviewContent.hasClass("weeknote-hidden")) {
+        templatePreviewContent.removeClass("weeknote-hidden");
         toggleBtn.setText(t("hide"));
-        refreshBtn.style.display = "inline-block";
+        refreshBtn.removeClass("weeknote-hidden");
         this.renderTemplatePreview(templatePreviewContent);
       } else {
-        templatePreviewContent.style.display = "none";
+        templatePreviewContent.addClass("weeknote-hidden");
         toggleBtn.setText(t("show"));
-        refreshBtn.style.display = "none";
+        refreshBtn.addClass("weeknote-hidden");
       }
     });
 

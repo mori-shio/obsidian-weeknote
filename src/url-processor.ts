@@ -12,13 +12,15 @@ export class UrlProcessor {
     let newContent = content;
     // Regex to find http/https URLs not already part of a markdown link
     // Negative lookbehind (?<!]\() checks it's not preceded by ](
-    const urlRegex = /(?<!\]\()https?:\/\/[^\s\)]+/g;
+    const urlRegex = /(?<!\]\()https?:\/\/[^\s)]+/g;
     const matches = Array.from(newContent.matchAll(urlRegex));
     
     for (let i = matches.length - 1; i >= 0; i--) {
         const match = matches[i];
         const url = match[0];
-        const index = match.index!;
+        // Match index can be undefined in some edge cases
+        if (match.index === undefined) continue;
+        const index = match.index;
         
         // Double check preceding characters to avoid replacing inside existing links
         const preceding = content.substring(0, index);

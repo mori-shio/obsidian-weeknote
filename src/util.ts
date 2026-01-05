@@ -113,11 +113,10 @@ export function getProp<T extends { [key: string]: unknown }>(value: T, prop: st
 
 export function safeJSONParse<T>(value: string, props: Record<keyof T, boolean>): T | null {
 	// Handle parsing with try / catch
-	let parsed: T;
+	let parsed: unknown;
 	try {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		parsed = JSON.parse(value);
-	} catch (err) {
+	} catch (_err) {
 		return null;
 	}
 
@@ -125,8 +124,9 @@ export function safeJSONParse<T>(value: string, props: Record<keyof T, boolean>)
 	const result = {} as Partial<T>;
 	for (const [_prop, include] of Object.entries(props)) {
 		const prop = _prop as keyof T;
-		if (include && (parsed as Record<string, unknown>)[prop as string]) {
-			(result as Record<string, unknown>)[prop as string] = (parsed as Record<string, unknown>)[prop as string];
+		const parsedRecord = parsed as Record<string, unknown>;
+		if (include && parsedRecord[prop as string]) {
+			(result as Record<string, unknown>)[prop as string] = parsedRecord[prop as string];
 		}
 	}
 
@@ -135,10 +135,6 @@ export function safeJSONParse<T>(value: string, props: Record<keyof T, boolean>)
 
 // Reference for more formats: https://github.com/moment/luxon/blob/master/src/impl/formats.js
 const n = "numeric";
-// eslint-disable-next-line unused-imports/no-unused-vars
-const s = "short";
-// eslint-disable-next-line unused-imports/no-unused-vars
-const l = "long";
 
 export const DateFormat = {
 	DATE_SHORT: new Intl.DateTimeFormat(undefined, {

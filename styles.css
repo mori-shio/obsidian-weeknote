@@ -21,6 +21,21 @@
   --task-edit-icon-size: 12px;
 }
 
+/* ==========================================================================
+   Utility Classes (for replacing inline styles)
+   ========================================================================== */
+.weeknote-hidden {
+  display: none !important;
+}
+
+.weeknote-flex {
+  display: flex !important;
+}
+
+.weeknote-visible {
+  display: block !important;
+}
+
 /* Settings page styles */
 .weeknote-settings-control-column {
   display: flex;

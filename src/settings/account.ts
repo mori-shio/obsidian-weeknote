@@ -202,7 +202,7 @@ export class AccountSettings {
 				});
 			})
 			.addText((text) => {
-				text.setPlaceholder("Personal Access Token / OAuth Token");
+				text.setPlaceholder("Personal access token / OAuth token");
 				text.setValue(account.token);
 				text.onChange((value) => {
 					account.token = value.trim();

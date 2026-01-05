@@ -48,7 +48,7 @@ export class WeeknoteGenerator {
     }).join("");
   }
 
-  async generateReport(weekStartDate: moment.Moment, schedule: WeeklySchedule | null): Promise<string> {
+  generateReport(weekStartDate: moment.Moment, schedule: WeeklySchedule | null): string {
     const dayKeys = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
     
     let content = this.settings.reportsTitle + "\n\n";

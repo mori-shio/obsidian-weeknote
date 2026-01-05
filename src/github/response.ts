@@ -51,7 +51,7 @@ export type IssueListParams = PaginationParams & {
 	org?: string;
 	milestone?: string;
 	state?: "open" | "closed" | "all";
-	assignee?: "none" | "*" | string;
+	assignee?: string;
 	creator?: string;
 	mentioned?: string;
 	labels?: string | string[];
