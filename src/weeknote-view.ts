@@ -402,8 +402,6 @@ export class WeeknoteView extends ItemView {
 
   // Two-panel layout: Schedule + Task/Memo toggle
   async renderTwoPanelLayout(container: Element): Promise<void> {
-    const t = this.t.bind(this);
-    
     const contentArea = container.createDiv({ cls: "weeknote-content-area" });
 
     // Section 1: Schedule (top) - using shared method
@@ -1888,7 +1886,7 @@ export class WeeknoteView extends ItemView {
     const grid = container.createDiv({ cls: "weeknote-task-grid" });
     
     for (let i = 0; i < flatTasks.length; i++) {
-      const { task, level, isLast } = flatTasks[i];
+      const { task, level } = flatTasks[i];
       
       // Insert button before each row
       const insertBtn = grid.createDiv({ cls: "task-insert-btn" });
@@ -2673,10 +2671,8 @@ export class WeeknoteView extends ItemView {
     const save = async () => {
       isSaving = true;
       const newTitle = input.value.trim();
-      let needsUpdate = false;
       if (newTitle && newTitle !== task.title) {
         await this.plugin.updateTaskContent(task.lineIndex, task.checked, newTitle, this.selectedDate);
-        needsUpdate = true;
       }
       
       // For save, we DO want to refresh to confirm changes, but after cleanup
@@ -3078,7 +3074,6 @@ export class WeeknoteView extends ItemView {
       }
     };
     
-    let keydownHandler: ((ev: KeyboardEvent) => void) | null = null;
     
     const cleanup = () => {
       tooltip.remove();
@@ -3544,7 +3539,6 @@ export class WeeknoteView extends ItemView {
 
   private updateAfterNavigation(): void {
     this.lastSelectedLineIndex = null;
-    const t = this.t.bind(this);
     const days = i18n[this.plugin.settings.language].days as string[];
     const weekStart = this.plugin.generator.getWeekStartDate(this.selectedDate);
 

@@ -75,16 +75,6 @@ class ICSParser {
           }
           exceptionDatesByUid.get(uid)!.add(exceptionDateStr);
           
-          const attendees = vcomp.getAllProperties("attendee");
-          for (const attendee of attendees) {
-            const att = attendee as { 
-              getFirstValue: () => string;
-              getParameter: (name: string) => string | null;
-            };
-            const _partstat = att.getParameter("partstat");
-            // Note: Declined status check could be personalized here
-            // For now, we don't filter based on user's own declined status
-          }
         }
       }
 
@@ -97,19 +87,7 @@ class ICSParser {
         const uid = vcomp.getFirstPropertyValue("uid") as string;
         
         if (vcomp.getFirstPropertyValue("recurrence-id")) {
-          const attendees = vcomp.getAllProperties("attendee");
-          const declined = false;
-          for (const attendee of attendees) {
-            const att = attendee as { 
-              getFirstValue: () => string;
-              getParameter: (name: string) => string | null;
-            };
-            const _partstat = att.getParameter("partstat");
-            // Note: Could add personalized declined check here
-          }
-          if (declined) continue;
-
-          if (declined) continue;
+          // Note: Could add personalized declined check here
           
           const dtstart = event.startDate;
           const dtend = event.endDate;
@@ -135,17 +113,7 @@ class ICSParser {
           continue;
         }
         
-        const attendees = vcomp.getAllProperties("attendee");
-        const userDeclined = false;
-        for (const attendee of attendees) {
-          const att = attendee as { 
-            getFirstValue: () => string;
-            getParameter: (name: string) => string | null;
-          };
-          const _partstat = att.getParameter("partstat");
-          // Note: Could add personalized declined check here
-        }
-        if (userDeclined) continue;
+        // Note: Could add personalized declined check here
 
         
         if (event.isRecurring()) {
