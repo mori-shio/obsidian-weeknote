@@ -2793,7 +2793,8 @@ export class WeeknoteView extends ItemView {
     
     // Get scroll container and panel for bounds checking
     const scrollContainer = row.closest(".weeknote-task-list") as HTMLElement;
-    const panel = scrollContainer?.parentElement || this.taskContainer;
+    // Use the section/panel as bounds to allow tooltip to overlap header without being cut
+    const panel = row.closest(".weeknote-section") as HTMLElement || row.closest(".weeknote-panel") as HTMLElement || this.taskContainer;
     
     // Create tooltip in document body for simple fixed positioning
     const tooltip = document.body.createDiv({ cls: "task-action-tooltip" });
@@ -2871,6 +2872,8 @@ export class WeeknoteView extends ItemView {
           (tooltipRect.bottom + arrowHeight) <= listRect.bottom &&
           tooltipRect.left >= listRect.left &&
           tooltipRect.right <= listRect.right;
+        
+        // If it's already outside the list (e.g. at the top edge), use the panel (wider) as bounds
         clipMode = isFullyInsideList ? "list" : "panel";
       }
       
@@ -2878,20 +2881,33 @@ export class WeeknoteView extends ItemView {
       const boundsRect = (clipMode === "list" && listRect) ? listRect : panelRect;
       
       if (boundsRect) {
-        // Calculate how much tooltip overflows each edge
+        // Calculate clipping with asymmetric bounds:
+        // Top/Left/Right follows clipMode (can expand to panel)
+        // Bottom ALWAYS stays within listRect if available
         const clipTop = Math.max(0, boundsRect.top - tooltipRect.top);
         const clipLeft = Math.max(0, boundsRect.left - tooltipRect.left);
         const clipRight = Math.max(0, tooltipRect.right - boundsRect.right);
         
-        // For bottom, include arrow in calculation
-        const bottomOverflow = Math.max(0, (tooltipRect.bottom + arrowHeight) - boundsRect.bottom);
+        // For bottom, always use listRect if possible to avoid overlapping input area
+        // Also account for horizontal scrollbar if present
+        const bottomLimitRect = listRect || boundsRect;
+        let bottomOffset = 0;
+        if (scrollContainer && scrollContainer.scrollHeight > scrollContainer.clientHeight) {
+            // Check for horizontal scrollbar height
+            const sbHeight = scrollContainer.offsetHeight - scrollContainer.clientHeight;
+            if (sbHeight > 0 && sbHeight < 30) { // Safety check for reasonable scrollbar height
+                bottomOffset = sbHeight;
+            }
+        }
+        
+        const bottomOverflow = Math.max(0, (tooltipRect.bottom + arrowHeight) - (bottomLimitRect.bottom - bottomOffset));
         const clipBottom = bottomOverflow - arrowHeight;
         
         // Apply clip-path when any overflow occurs
         if (clipTop > 0 || bottomOverflow > 0 || clipLeft > 0 || clipRight > 0) {
-          tooltip.style.clipPath = `inset(${clipTop}px ${clipRight}px ${clipBottom}px ${clipLeft}px)`;
+          tooltip.setCssStyles({ clipPath: `inset(${clipTop}px ${clipRight}px ${clipBottom}px ${clipLeft}px)` });
         } else {
-          tooltip.style.clipPath = "";
+          tooltip.setCssStyles({ clipPath: "" });
         }
       }
     };
@@ -2962,7 +2978,7 @@ export class WeeknoteView extends ItemView {
     
     // Get scroll container for bounds checking
     const scrollContainer = card.closest(".weeknote-memo-list") as HTMLElement;
-    const wrapper = scrollContainer?.parentElement || this.memoListWrapper;
+    const wrapper = card.closest(".weeknote-section") as HTMLElement || card.closest(".weeknote-panel") as HTMLElement || this.memoListWrapper;
     
     // Create tooltip in document body for simple fixed positioning
     const tooltip = document.body.createDiv({ cls: "memo-action-tooltip" });
@@ -3019,9 +3035,13 @@ export class WeeknoteView extends ItemView {
         clickOffsetX = cardRect.width / 2;
     }
     
+    // Dynamic clipping mode
+    let clipMode: "list" | "panel" | null = null;
+    
     const updatePosition = () => {
       const rect = card.getBoundingClientRect();
-      const wrapperRect = wrapper ? wrapper.getBoundingClientRect() : null;
+      const listRect = scrollContainer ? scrollContainer.getBoundingClientRect() : null;
+      const panelRect = wrapper ? wrapper.getBoundingClientRect() : null;
       
       // Position tooltip above the card, centered on click position
       const left = rect.left + clickOffsetX;
@@ -3029,15 +3049,41 @@ export class WeeknoteView extends ItemView {
       
       tooltip.setCssStyles({ left: `${left}px`, top: `${top}px` });
       
+      // Determine clipping bounds
+      const tooltipRect = tooltip.getBoundingClientRect();
+      const arrowHeight = 8;
+      
+      if (clipMode === null && listRect) {
+        const isFullyInsideList = 
+          tooltipRect.top >= listRect.top &&
+          (tooltipRect.bottom + arrowHeight) <= listRect.bottom &&
+          tooltipRect.left >= listRect.left &&
+          tooltipRect.right <= listRect.right;
+        clipMode = isFullyInsideList ? "list" : "panel";
+      }
+
+      // Select clipping bounds based on mode
+      const boundsRect = (clipMode === "list" && listRect) ? listRect : panelRect;
+
       // Apply clipping if needed
-      if (wrapperRect) {
-        const tooltipRect = tooltip.getBoundingClientRect();
-        const arrowHeight = 8;
+      if (boundsRect) {
+        // Asymmetric clipping: top/left/right follows expanded bounds, bottom is strictly list list
+        const clipTop = Math.max(0, boundsRect.top - tooltipRect.top);
+        const clipLeft = Math.max(0, boundsRect.left - tooltipRect.left);
+        const clipRight = Math.max(0, tooltipRect.right - boundsRect.right);
         
-        const clipTop = Math.max(0, wrapperRect.top - tooltipRect.top);
-        const clipLeft = Math.max(0, wrapperRect.left - tooltipRect.left);
-        const clipRight = Math.max(0, tooltipRect.right - wrapperRect.right);
-        const bottomOverflow = Math.max(0, (tooltipRect.bottom + arrowHeight) - wrapperRect.bottom);
+        // Bottom limit is ALWAYS the list zone
+        // Also account for horizontal scrollbar if present
+        const bottomLimitRect = listRect || boundsRect;
+        let bottomOffset = 0;
+        if (scrollContainer && scrollContainer.scrollWidth > scrollContainer.clientWidth) {
+            const sbHeight = scrollContainer.offsetHeight - scrollContainer.clientHeight;
+            if (sbHeight > 0 && sbHeight < 30) {
+                bottomOffset = sbHeight;
+            }
+        }
+        
+        const bottomOverflow = Math.max(0, (tooltipRect.bottom + arrowHeight) - (bottomLimitRect.bottom - bottomOffset));
         const clipBottom = bottomOverflow - arrowHeight;
         
         if (clipTop > 0 || bottomOverflow > 0 || clipLeft > 0 || clipRight > 0) {

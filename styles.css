@@ -261,7 +261,6 @@
 }
 
 .weeknote-create-btn:hover {
-  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
@@ -1653,6 +1652,8 @@
   flex-shrink: 0;
   line-height: 1;
   transform: translateY(0.5px);
+  user-select: text;
+  cursor: text;
 }
 
 .schedule-event-name {
@@ -1662,6 +1663,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   line-height: 1;
+  user-select: text;
+  cursor: text;
 }
 
 .schedule-meet-link {
@@ -3079,6 +3082,8 @@ body.theme-dark .github-link-table .github-link-table-labels .github-link-table-
 
 /* Card action tooltip - speech bubble style with buttons */
 .task-action-tooltip {
+  position: fixed;
+  z-index: 9999;
   background: var(--background-primary);
   border: 1px solid var(--background-modifier-border);
   border-radius: 6px;
@@ -3087,6 +3092,7 @@ body.theme-dark .github-link-table .github-link-table-labels .github-link-table-
   display: flex;
   align-items: center;
   gap: 4px;
+  transform: translateY(-100%);
 }
 
 .task-action-tooltip::after {
