@@ -200,8 +200,7 @@ export function setupHorizontalResizer(
     if (newTopHeight < 60) newTopHeight = 60;
     if (newTopHeight > totalHeight - 200) newTopHeight = totalHeight - 200;
     
-    const _newBottomHeight = totalHeight - newTopHeight;
-  
+    
     // 1. Try applying height to TOP panel
     topPanel.setCssStyles({ height: `${newTopHeight}px`, flex: `0 0 ${newTopHeight}px` });
     
