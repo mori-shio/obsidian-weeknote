@@ -26,8 +26,8 @@ class ICSParser {
       try {
         const regex = new RegExp(pattern.trim());
         return regex.test(summary);
-      } catch (_e) {
-        console.warn(`[Worker] Invalid regex pattern: ${pattern}`, _e);
+      } catch (e) {
+        console.warn(`[Worker] Invalid regex pattern: ${pattern}`, e);
         return summary.includes(pattern.trim());
       }
     });
@@ -234,7 +234,7 @@ class ICSParser {
           }
         }
       }
-    } catch (_e) {
+    } catch {
       // Ignore errors in status extraction
     }
 

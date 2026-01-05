@@ -154,12 +154,12 @@ export default class WeeknotePlugin extends Plugin {
               }
             });
           }
-        } catch (_e) {
+        } catch {
           new Notice("スケジュールの取得に失敗しました");
         }
       }
-    } catch (_error) {
-      new Notice(`週報の作成に失敗しました: ${_error}`);
+    } catch (error) {
+      new Notice(`週報の作成に失敗しました: ${error}`);
     }
   }
 

@@ -172,7 +172,7 @@ export class WeeknoteSettingTab extends PluginSettingTab {
         const weekStart = this.plugin.generator.getWeekStartDate();
         const preview = weekStart.format(momentFormat);
         previewEl.setText(`${preview}.md`);
-      } catch (_err) {
+      } catch {
         previewEl.setText("Invalid format");
       }
     };

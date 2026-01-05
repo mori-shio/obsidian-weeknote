@@ -1072,7 +1072,7 @@ export class WeeknoteView extends ItemView {
         this.scheduleListContainer.empty();
         await this.loadDaySchedule(this.scheduleListContainer, this.selectedDate);
       }
-    } catch (_error) {
+    } catch {
       new Notice(t("scheduleReloadFailed"));
     }
   }
@@ -1113,7 +1113,7 @@ export class WeeknoteView extends ItemView {
               await this.plugin.updateScheduleInReport(date, schedule);
             }
           }
-        } catch (_e) {
+        } catch {
           // Schedule fetch failed
           new Notice(t("scheduleSyncFailed") || "Failed to sync schedule");
         } finally {
@@ -1125,8 +1125,8 @@ export class WeeknoteView extends ItemView {
       setTimeout(async () => {
         await this.refreshContent();
       }, 300);
-    } catch (_error) {
-      new Notice(`${t("reportCreateFailed")}: ${_error}`);
+    } catch (error) {
+      new Notice(`${t("reportCreateFailed")}: ${error}`);
     }
   }
 
@@ -1368,8 +1368,8 @@ export class WeeknoteView extends ItemView {
           this.isProgrammaticScrolling = false;
         });
       }
-    } catch (_error) {
-      new Notice(`${t("saveFailed")}: ${_error}`);
+    } catch (error) {
+      new Notice(`${t("saveFailed")}: ${error}`);
     }
   }
 
@@ -1505,7 +1505,7 @@ export class WeeknoteView extends ItemView {
       }
       
       // Note: Scroll to bottom is handled by the caller (layout functions)
-    } catch (_error) {
+    } catch {
       container.createDiv({ cls: "weeknote-empty", text: t("loadMemoFailed") });
     }
   }
@@ -1590,7 +1590,7 @@ export class WeeknoteView extends ItemView {
           });
         }
       }
-    } catch (_error) {
+    } catch {
       container.createDiv({ cls: "weeknote-empty", text: "スケジュールを読み込めませんでした" });
     }
   }
@@ -1668,7 +1668,7 @@ export class WeeknoteView extends ItemView {
         }
       });
       
-    } catch (_error) {
+    } catch {
       // Task loading failed
     }
   }

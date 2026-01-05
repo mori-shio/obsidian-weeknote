@@ -32,7 +32,7 @@ export function isAllowedPath(link: string): boolean {
 		if (knownPaths.includes(basePath)) {
 			return false;
 		}
-	} catch (_err) {
+	} catch {
 		return false;
 	}
 	return true;

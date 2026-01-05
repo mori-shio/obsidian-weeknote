@@ -103,7 +103,7 @@ export function getProp<T extends { [key: string]: unknown }>(value: T, prop: st
 	for (const part of parts) {
 		try {
 			val = val[part] as T;
-		} catch (_err) {
+		} catch {
 			return null;
 		}
 	}
@@ -116,7 +116,7 @@ export function safeJSONParse<T>(value: string, props: Record<keyof T, boolean>)
 	let parsed: unknown;
 	try {
 		parsed = JSON.parse(value);
-	} catch (_err) {
+	} catch {
 		return null;
 	}
 
