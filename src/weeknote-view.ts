@@ -1533,11 +1533,17 @@ export class WeeknoteView extends ItemView {
       }
 
       for (const item of scheduleItems) {
-        const scheduleCard = container.createDiv({ cls: "weeknote-schedule-card" });
-        
         // Parse the schedule line (e.g., "- [ ] 10:00-11:00 Meeting [meet](url) ＠Location")
         const isChecked = item.includes("- [x]");
         const content = item.replace(/^- \[[ x]\] /, "");
+        
+        // Parse schedule content into components
+        const parsed = this.parseScheduleContent(content);
+
+        const scheduleCard = container.createDiv({ cls: "weeknote-schedule-card" });
+        if (parsed.eventName?.startsWith("~~") && parsed.eventName?.endsWith("~~")) {
+          scheduleCard.addClass("is-declined");
+        }
         
         const checkbox = scheduleCard.createEl("input", {
           type: "checkbox",
@@ -1550,9 +1556,6 @@ export class WeeknoteView extends ItemView {
         
         const contentEl = scheduleCard.createDiv({ cls: "weeknote-schedule-content" });
         
-        // Parse schedule content into components
-        const parsed = this.parseScheduleContent(content);
-        
         // Time
         if (parsed.time) {
           const timeEl = contentEl.createSpan({ cls: "schedule-time" });
@@ -1562,7 +1565,7 @@ export class WeeknoteView extends ItemView {
         // Event name
         if (parsed.eventName) {
           const nameEl = contentEl.createSpan({ cls: "schedule-event-name" });
-          nameEl.setText(parsed.eventName);
+          this.renderMarkdownText(nameEl, parsed.eventName);
         }
         
         // Meet URL (video icon)

@@ -229,7 +229,7 @@ class ICSParser {
     return result;
   }
 
-  private convertToCalendarEvent(dtstart: unknown, dtend: unknown, event: { summary?: string; location?: string; description?: string }): CalendarEvent {
+  private convertToCalendarEvent(dtstart: unknown, dtend: unknown, event: { summary?: string; location?: string; description?: string; component?: unknown }): CalendarEvent {
     const dtstartTyped = dtstart as { isDate: boolean; toJSDate: () => Date };
     const dtendTyped = dtend as { toJSDate: () => Date } | null;
     
@@ -248,6 +248,28 @@ class ICSParser {
       meetUrl = this.extractMeetUrl(description);
     }
 
+    // Try to find the user's participation status
+    let status: "accepted" | "tentative" | "declined" | undefined = undefined;
+    try {
+      const component = event.component as { getAllProperties: (name: string) => Array<{ getParameter: (name: string) => string | null }> } | undefined;
+      if (component) {
+        const attendees = component.getAllProperties("attendee");
+        for (const attendee of attendees) {
+          const partstat = attendee.getParameter("partstat");
+          if (partstat === "DECLINED") {
+            status = "declined";
+            break; 
+          } else if (partstat === "TENTATIVE") {
+            status = "tentative";
+          } else if (partstat === "ACCEPTED") {
+            status = "accepted";
+          }
+        }
+      }
+    } catch (_e) {
+      // Ignore errors in status extraction
+    }
+
     return {
       eventName: event.summary || "",
       isAllDay,
@@ -256,6 +278,7 @@ class ICSParser {
       location,
       meetUrl,
       date: startMoment.format("YYYY-MM-DD"),
+      status
     };
   }
 
@@ -265,8 +288,8 @@ class ICSParser {
   }
 }
 
-self.addEventListener("message", async (e: MessageEvent<WorkerRequest>) => {
-  const { icsData, icsBuffer, startDate, endDate, excludePatterns } = e.data;
+self.addEventListener("message", async (_e: MessageEvent<WorkerRequest>) => {
+  const { icsData, icsBuffer, startDate, endDate, excludePatterns } = _e.data;
   
   try {
     let dataToProcess: string;

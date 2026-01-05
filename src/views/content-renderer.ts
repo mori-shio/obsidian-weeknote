@@ -146,8 +146,8 @@ export function parseScheduleContent(content: string): {
 } {
   let remaining = content;
   
-  // Extract time (e.g., "10:00-11:00" or "10:00")
-  const timeMatch = remaining.match(/^(\d{1,2}:\d{2}(?:-\d{1,2}:\d{2})?)\s*/);
+  // Extract time (e.g., "10:00-11:00", "10:00", "[All Day]", or "[終日]")
+  const timeMatch = remaining.match(/^(\d{1,2}:\d{2}(?:-\d{1,2}:\d{2})?|\[終日\]|\[All Day\])\s*/);
   const time = timeMatch ? timeMatch[1] : null;
   if (timeMatch) {
     remaining = remaining.slice(timeMatch[0].length);
@@ -160,8 +160,8 @@ export function parseScheduleContent(content: string): {
     remaining = remaining.replace(meetMatch[0], "").trim();
   }
   
-  // Extract location (e.g., "＠Location" or "@Location")
-  const locationMatch = remaining.match(/[＠@](.+)$/);
+  // Extract location (last occurrence preceded by space)
+  const locationMatch = remaining.match(/\s+[＠@]([^＠@]+)$/);
   const location = locationMatch ? locationMatch[1].trim() : null;
   if (locationMatch) {
     remaining = remaining.replace(locationMatch[0], "").trim();

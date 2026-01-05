@@ -14,6 +14,7 @@ export interface CalendarEvent {
   location: string | null;
   meetUrl: string | null;
   date: string | null; // YYYY-MM-DD format
+  status?: "accepted" | "tentative" | "declined";
 }
 
 export interface DaySchedule {

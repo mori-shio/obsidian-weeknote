@@ -3299,4 +3299,10 @@ body.theme-dark .github-link-table .github-link-table-labels .github-link-table-
   background: var(--background-secondary);
   border-color: var(--interactive-accent);
   box-shadow: 0 0 0 1px var(--interactive-accent);
+}.weeknote-schedule-card.is-declined {
+  opacity: 0.6;
+}
+
+.weeknote-schedule-card.is-declined .schedule-event-name {
+  text-decoration: line-through;
 }

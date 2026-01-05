@@ -2,6 +2,7 @@ import { App, TFile, moment } from "obsidian";
 import { CalendarEvent, WeeklySchedule, WeeknoteSettings } from "../types";
 import { FileUtils } from "../utils/file-utils";
 import { WeeknoteGenerator } from "../weeknote-generator";
+import { i18n } from "../i18n";
 
 export class ScheduleService {
   constructor(
@@ -106,7 +107,7 @@ export class ScheduleService {
     // Get events for this specific date
     const dayKeys = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
     const weekStart = this.generator.getWeekStartDate(date);
-    const dayIndex = date.diff(weekStart, "days");
+    const dayIndex = Math.round(date.diff(weekStart, "days"));
     const dayKey = dayKeys[date.day()] + "_" + dayIndex;
     const daySchedule = schedule[dayKey];
 
@@ -117,29 +118,13 @@ export class ScheduleService {
     // Parse existing schedule to preserve checkbox state
     const existingScheduleLines = lines.slice(scheduleStartIdx, scheduleEndIdx);
     const checkedEvents = new Set<string>();
-    
+
     for (const line of existingScheduleLines) {
       const match = line.match(/^- \[(x| )\] (.*?)$/);
       if (match && match[1] === "x") {
-        let content = match[2];
-        let timePart = "";
-        
-        const timeMatch = content.match(/^(\d{1,2}:\d{2}(?:-\d{1,2}:\d{2})?|\[終日\])/);
-        if (timeMatch) {
-            timePart = timeMatch[1];
-            content = content.substring(timeMatch[0].length).trim();
-        }
-
-        content = content.replace(/\[.*?\]\(.*?\)/g, "").trim();
-        content = content.replace(/\s*[＠@].*$/, "");
-        
-        const eventName = content.trim();
-
-        if (timePart && eventName) {
-            const key = `${timePart} ${eventName}`;
-            checkedEvents.add(key);
-        } else {
-            checkedEvents.add(match[2].trim());
+        const eventName = this.normalizeForMatching(match[2]);
+        if (eventName) {
+            checkedEvents.add(eventName);
         }
       }
     }
@@ -148,8 +133,13 @@ export class ScheduleService {
     const newScheduleLines: string[] = [];
     for (const event of daySchedule.schedule) {
       let isChecked = false;
-      const coreEventStr = this.getEventCoreString(event);
-      if (checkedEvents.has(coreEventStr)) {
+      const coreName = this.normalizeForMatching(event.eventName);
+      if (checkedEvents.has(coreName)) {
+        isChecked = true;
+      }
+      
+      // Force check for declined events
+      if (event.status === "declined") {
         isChecked = true;
       }
       
@@ -169,31 +159,66 @@ export class ScheduleService {
     await this.app.vault.modify(file, newLines.join("\n"));
   }
 
+  /**
+   * Normalize an event string for comparison (strips time, labels, locations, links, and markdown)
+   */
+  private normalizeForMatching(text: string): string {
+    if (!text) return "";
+    
+    let normalized = text.trim();
+    
+    // 1. Remove non-breaking spaces and other invisible chars
+    normalized = normalized.replace(/[\u00a0\u1680\u180e\u2000-\u200b\u202f\u205f\u3000\ufeff]/g, " ");
+    
+    // 2. Strip outer strikethrough if any
+    normalized = normalized.replace(/^~~(.*)~~$/, "$1");
+    
+    // 3. Strip various all-day labels
+    normalized = normalized.replace(/^(\[終日\]|\[All day\])\s*/i, "");
+    
+    // 4. Strip time formats (HH:mm, HH:mm:ss, HH:mm-HH:mm)
+    normalized = normalized.replace(/^(\d{1,2}:\d{2}(?::\d{2})?(?:-\d{1,2}:\d{2}(?::\d{2})?)?)\s*/, "");
+    
+    // 5. Strip [meet] links specifically
+    normalized = normalized.replace(/\[meet\]\(.*?\)/g, "");
+    // Also strip generic markdown links but keep text [text](url) -> text
+    normalized = normalized.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+    
+    // 6. Strip location (must be preceded by space and at the very end to avoid matching middle-of-title @)
+    normalized = normalized.replace(/\s+[＠@][^＠@]+$/, "");
+    
+    // 7. Remove all markdown decorations (*, _, ~)
+    normalized = normalized.replace(/[*_~]/g, "");
+    
+    // 8. Final trim and lowercase
+    return normalized.trim().toLowerCase();
+  }
+
   getEventCoreString(event: CalendarEvent): string {
-    let timeStr = "";
-    if (event.isAllDay) {
-      timeStr = "[終日]";
-    } else {
-      timeStr = `${event.startTime || "??:??"}`;
-      if (event.endTime) {
-        timeStr += `-${event.endTime}`;
-      }
-    }
-    return `${timeStr} ${event.eventName.trim()}`;
+    return this.normalizeForMatching(event.eventName);
   }
 
   formatScheduleEvent(event: CalendarEvent, isChecked: boolean = false): string {
+    const lang = this.settings.language;
+    const allDayLabel = i18n[lang].allDay as string;
+    
     let line = `- [${isChecked ? "x" : " "}] `;
     
     if (event.isAllDay) {
-      line += `[終日] ${event.eventName}`;
+      line += `${allDayLabel} `;
     } else {
       line += `${event.startTime || "??:??"}`;
       if (event.endTime) {
         line += `-${event.endTime}`;
       }
-      line += ` ${event.eventName}`;
+      line += " ";
     }
+
+    let eventName = event.eventName;
+    if (event.status === "declined") {
+      eventName = `~~${eventName}~~`;
+    }
+    line += eventName;
 
     if (event.meetUrl) {
       line += ` [meet](${event.meetUrl})`;
