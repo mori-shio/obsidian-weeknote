@@ -3266,7 +3266,7 @@ export class WeeknoteView extends ItemView {
         input.addEventListener("keydown", (e) => {
           e.stopPropagation();
           // Ignore if IME is composing
-          if (isComposing || e.isComposing || e.keyCode === 229) return;
+          if (isComposing || e.isComposing) return;
 
           if (e.key === "Enter") void submit();
           if (e.key === "Escape") cleanup();
@@ -3479,7 +3479,7 @@ export class WeeknoteView extends ItemView {
     input.addEventListener("keydown", (e) => {
       e.stopPropagation();
       // Ignore if IME is composing
-      if (isComposing || e.isComposing || e.keyCode === 229) return;
+      if (isComposing || e.isComposing) return;
 
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
