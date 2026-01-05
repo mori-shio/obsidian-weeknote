@@ -256,7 +256,7 @@ class ICSParser {
   }
 }
 
-self.addEventListener("message", async (_e: MessageEvent<WorkerRequest>) => {
+self.addEventListener("message", (_e: MessageEvent<WorkerRequest>) => {
   const { icsData, icsBuffer, startDate, endDate, excludePatterns } = _e.data;
   
   try {

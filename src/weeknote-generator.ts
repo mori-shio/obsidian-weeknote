@@ -114,7 +114,7 @@ export class WeeknoteGenerator {
 
   async createReport(weekStartDate: moment.Moment, schedule: WeeklySchedule | null): Promise<string> {
     const filePath = this.getReportFilePath(weekStartDate);
-    const content = await this.generateReport(weekStartDate, schedule);
+    const content = this.generateReport(weekStartDate, schedule);
 
     // Ensure directory exists
     const dirPath = filePath.substring(0, filePath.lastIndexOf("/"));

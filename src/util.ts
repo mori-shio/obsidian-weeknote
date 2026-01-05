@@ -167,21 +167,21 @@ export function isSuccessResponse(code: number) {
 	return code >= 200 && code <= 208;
 }
 
-export class RequestError implements Error {
-	name: string;
-	message: string;
-	stack?: string;
+export class RequestError extends Error {
 	headers: Record<string, string>;
 	status: number;
 	constructor(public readonly originalError: Error) {
+		super(originalError.message);
 		// Base error props
 		this.name = originalError.name;
 		this.stack = originalError.stack;
-		this.message = originalError.message;
 
 		// Request props
 		const err = (originalError as unknown) as Record<string, unknown>;
 		this.headers = (err.headers as Record<string, string>) ?? {};
 		this.status = (err.status as number) ?? 0;
+
+		// Set the prototype explicitly for proper inheritance
+		Object.setPrototypeOf(this, RequestError.prototype);
 	}
 }

@@ -235,10 +235,12 @@ export class WeeknoteView extends ItemView {
     this.reloadBtn = scheduleHeader.createEl("button", { cls: "weeknote-reload-btn" });
     setIcon(this.reloadBtn, "refresh-cw");
     this.reloadBtn.setAttribute("aria-label", "Reload schedule");
-    this.reloadBtn.addEventListener("click", async () => {
-      this.reloadBtn.addClass("is-loading");
-      await this.reloadSchedule();
-      this.reloadBtn.removeClass("is-loading");
+    this.reloadBtn.addEventListener("click", () => {
+      void (async () => {
+        this.reloadBtn.addClass("is-loading");
+        await this.reloadSchedule();
+        this.reloadBtn.removeClass("is-loading");
+      })();
     });
   }
 
@@ -518,10 +520,10 @@ export class WeeknoteView extends ItemView {
     this.reloadBtn = scheduleHeader.createEl("button", { cls: "weeknote-reload-btn" });
     setIcon(this.reloadBtn, "refresh-cw");
     this.reloadBtn.setAttribute("aria-label", "Reload schedule");
-    this.reloadBtn.addEventListener("click", async () => {
+    this.reloadBtn.addEventListener("click", () => void (async () => {
       this.reloadBtn.addClass("is-loading");
       await this.reloadSchedule();
-      this.reloadBtn.removeClass("is-loading");
+      this.reloadBtn.removeClass("is-loading"); })())
     });
     
     this.scheduleListContainer = this.scheduleSection.createDiv({ cls: "weeknote-schedule-list" });
@@ -1117,7 +1119,7 @@ export class WeeknoteView extends ItemView {
           // Schedule fetch failed
           new Notice(t("scheduleSyncFailed") || "Failed to sync schedule");
         } finally {
-          if (this.reloadBtn) this.reloadBtn.removeClass("is-loading");
+          if (this.reloadBtn) this.reloadBtn.removeClass("is-loading"); })())
         }
       }
       
