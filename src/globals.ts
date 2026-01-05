@@ -3,8 +3,8 @@ import { GithubLinkPluginSettings, GithubLinkPluginData, DEFAULT_SETTINGS } from
 import { RequestCache } from "./github/cache";
 import { DATA_VERSION } from "./settings/types";
 
-export let PluginSettings: GithubLinkPluginSettings = { ...DEFAULT_SETTINGS };
-export let PluginData: GithubLinkPluginData = { cache: null, settings: PluginSettings, dataVersion: DATA_VERSION };
+export const PluginSettings: GithubLinkPluginSettings = { ...DEFAULT_SETTINGS };
+export const PluginData: GithubLinkPluginData = { cache: null, settings: PluginSettings, dataVersion: DATA_VERSION };
 export const logger = new Logger();
 let cache: RequestCache;
 

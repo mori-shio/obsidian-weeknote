@@ -421,6 +421,6 @@ export function setLanguage(lang: "ja" | "en") {
 }
 
 export function t(key: I18nKey): string {
-  // @ts-ignore
+  // @ts-expect-error Dynamic key access for i18n dictionary
   return i18n[currentLanguage][key] || i18n["en"][key] || key;
 }

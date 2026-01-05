@@ -7,7 +7,7 @@ import {
   WorkerResponse
 } from "./types";
 
-// @ts-ignore
+// @ts-expect-error Worker code imported as raw string for bundling
 import icsParserWorkerCode from "./workers/ics-parser.worker.ts";
 
 export class CalendarService {

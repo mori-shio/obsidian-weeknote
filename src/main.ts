@@ -16,7 +16,6 @@ import { WeeknoteGenerator } from "./weeknote-generator";
 import { WeeknoteSettingTab } from "./settings/weeknote-settings-tab";
 import { WeeknoteView } from "./weeknote-view";
 import {
-  CalendarEvent,
   WeeklySchedule,
   TaskItem,
   WeeknoteSettings,
@@ -155,12 +154,12 @@ export default class WeeknotePlugin extends Plugin {
               }
             });
           }
-        } catch (e) {
+        } catch (_e) {
           new Notice("スケジュールの取得に失敗しました");
         }
       }
-    } catch (error) {
-      new Notice(`週報の作成に失敗しました: ${error}`);
+    } catch (_error) {
+      new Notice(`週報の作成に失敗しました: ${_error}`);
     }
   }
 

@@ -27,8 +27,7 @@ import {
   setupScheduleResizer as setupScheduleResizerHelper,
   setupLeftPanelResizer as setupLeftPanelResizerHelper,
   setupRightPanelResizer as setupRightPanelResizerHelper,
-  setupHorizontalResizer as setupHorizontalResizerHelper,
-  updateScrollShadows
+  setupHorizontalResizer as setupHorizontalResizerHelper
 } from "./views/layout-helper";
 
 export class WeeknoteView extends ItemView {
@@ -77,7 +76,7 @@ export class WeeknoteView extends ItemView {
   getTimestampRegex(): RegExp {
     const format = this.plugin.settings.timestampFormat;
     // Escape special regex characters except moment tokens
-    let pattern = format
+    const pattern = format
       .replace(/[.*+?^${}|[\]\\]/g, '\\$&') // Escape regex special chars
       .replace(/YYYY/g, '(\\d{4})')
       .replace(/YY/g, '(\\d{2})')
@@ -1073,7 +1072,7 @@ export class WeeknoteView extends ItemView {
         this.scheduleListContainer.empty();
         await this.loadDaySchedule(this.scheduleListContainer, this.selectedDate);
       }
-    } catch (error) {
+    } catch (_error) {
       new Notice(t("scheduleReloadFailed"));
     }
   }
@@ -1114,7 +1113,7 @@ export class WeeknoteView extends ItemView {
               await this.plugin.updateScheduleInReport(date, schedule);
             }
           }
-        } catch (e) {
+        } catch (_e) {
           // Schedule fetch failed
           new Notice(t("scheduleSyncFailed") || "Failed to sync schedule");
         } finally {
@@ -1126,8 +1125,8 @@ export class WeeknoteView extends ItemView {
       setTimeout(async () => {
         await this.refreshContent();
       }, 300);
-    } catch (error) {
-      new Notice(`${t("reportCreateFailed")}: ${error}`);
+    } catch (_error) {
+      new Notice(`${t("reportCreateFailed")}: ${_error}`);
     }
   }
 
@@ -1369,8 +1368,8 @@ export class WeeknoteView extends ItemView {
           this.isProgrammaticScrolling = false;
         });
       }
-    } catch (error) {
-      new Notice(`${t("saveFailed")}: ${error}`);
+    } catch (_error) {
+      new Notice(`${t("saveFailed")}: ${_error}`);
     }
   }
 
@@ -1485,7 +1484,7 @@ export class WeeknoteView extends ItemView {
           e.preventDefault();
           
           // Check if URL was stored from link click
-          let clickedUrl = card.dataset.clickedUrl;
+          const clickedUrl = card.dataset.clickedUrl;
           delete card.dataset.clickedUrl; // Clear after reading
           
           // Deselect previous card and tasks
@@ -1506,7 +1505,7 @@ export class WeeknoteView extends ItemView {
       }
       
       // Note: Scroll to bottom is handled by the caller (layout functions)
-    } catch (error) {
+    } catch (_error) {
       container.createDiv({ cls: "weeknote-empty", text: t("loadMemoFailed") });
     }
   }
@@ -1572,7 +1571,7 @@ export class WeeknoteView extends ItemView {
           locationEl.setText(parsed.location);
           
           // Dynamic tooltip on hover
-          locationEl.addEventListener("mouseenter", (e) => {
+          locationEl.addEventListener("mouseenter", (_e) => {
             const tooltip = document.createElement("div");
             tooltip.className = "schedule-location-tooltip";
             tooltip.textContent = parsed.location;
@@ -1591,7 +1590,7 @@ export class WeeknoteView extends ItemView {
           });
         }
       }
-    } catch (error) {
+    } catch (_error) {
       container.createDiv({ cls: "weeknote-empty", text: "スケジュールを読み込めませんでした" });
     }
   }
@@ -1669,7 +1668,7 @@ export class WeeknoteView extends ItemView {
         }
       });
       
-    } catch (error) {
+    } catch (_error) {
       // Task loading failed
     }
   }
@@ -3384,7 +3383,7 @@ export class WeeknoteView extends ItemView {
         e.preventDefault();
         
         // Check if URL was stored from link click (via dispatchEvent)
-        let clickedUrl = card.dataset.clickedUrl;
+        const clickedUrl = card.dataset.clickedUrl;
         delete card.dataset.clickedUrl; // Clear after reading
         
         const allCards = this.memoListContainer?.querySelectorAll(".weeknote-card");
