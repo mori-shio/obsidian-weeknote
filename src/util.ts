@@ -122,11 +122,10 @@ export function safeJSONParse<T>(value: string, props: Record<keyof T, boolean>)
 
 	// Validate object shape
 	const result = {} as Partial<T>;
-	for (const [_prop, include] of Object.entries(props)) {
-		const prop = _prop as keyof T;
-		const parsedRecord = parsed as Record<string, unknown>;
-		if (include && parsedRecord[prop as string]) {
-			(result as Record<string, unknown>)[prop as string] = parsedRecord[prop as string];
+	const parsedRecord = parsed as Record<string, unknown>;
+	for (const [prop, include] of Object.entries(props)) {
+		if (include && parsedRecord[prop]) {
+			(result as any)[prop] = parsedRecord[prop];
 		}
 	}
 

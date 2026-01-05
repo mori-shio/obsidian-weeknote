@@ -1,4 +1,9 @@
-export const i18n = {
+export interface I18nDictionary {
+  [key: string]: string | string[];
+  days: string[];
+}
+
+export const i18n: { ja: I18nDictionary; en: I18nDictionary } = {
   ja: {
     // Settings sections
     generalSettings: "⚙️ 一般設定",
@@ -234,7 +239,6 @@ export const i18n = {
     // Week settings
     weekStartDay: "Week start day",
     weekStartDayDesc: "Select the starting day of the week",
-
     
     // Path settings
     weeknoteFileFormat: "Weeknote file path",
@@ -380,7 +384,7 @@ export const i18n = {
     days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     
     // GitHub Link settings
-    githubLinkSettings: "GitHub Link",
+    githubLinkSettings: "GitHub link",
     githubAuthDesc: "Authentication token allows referencing private repos and increases rate limits.",
     githubAccounts: "GitHub accounts",
     addGithubAccount: "Add GitHub account",
@@ -397,12 +401,12 @@ export const i18n = {
     token: "Token",
     tokenDesc: "A GitHub token, which can be generated automatically (recommended) or by creating a personal access token.",
     generateToken: "Generate token",
-    tokenPlaceholder: "Personal Access Token / OAuth Token",
+    tokenPlaceholder: "Personal access token / OAuth token",
     saveAccount: "Save account",
     deleteAccount: "Delete account",
     cancel: "Cancel",
     clientIdPlaceholder: "Client ID",
-    cacheCleared: "Removed {count} stored items from GitHub Link cache.",
+    cacheCleared: "Removed {count} stored items from GitHub link cache.",
   },
 };
 

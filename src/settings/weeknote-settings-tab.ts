@@ -444,7 +444,7 @@ export class WeeknoteSettingTab extends PluginSettingTab {
 
     // Button 1 (always enabled, no toggle needed)
     new Setting(containerEl)
-      .setName(lang === "ja" ? "コピーボタン 1" : "Copy Button 1")
+      .setName(lang === "ja" ? "コピーボタン 1" : "Copy button 1")
       .setDesc(lang === "ja" ? "タスクが空の時に表示される最初のボタン" : "First button shown when tasks are empty")
       .addDropdown(dropdown => {
         dropdown.addOptions(presetOptions);
@@ -469,13 +469,13 @@ export class WeeknoteSettingTab extends PluginSettingTab {
 
     // Button 2 with toggle
     createButtonSetting(1, 
-      lang === "ja" ? "コピーボタン 2" : "Copy Button 2",
+      lang === "ja" ? "コピーボタン 2" : "Copy button 2",
       lang === "ja" ? "2番目のボタン" : "Second button"
     );
 
     // Button 3 with toggle
     createButtonSetting(2,
-      lang === "ja" ? "コピーボタン 3" : "Copy Button 3", 
+      lang === "ja" ? "コピーボタン 3" : "Copy button 3", 
       lang === "ja" ? "3番目のボタン" : "Third button"
     );
 

@@ -268,10 +268,8 @@ export class GitHubApi {
 			return this.getPaginationMeta(response);
 		} catch (err) {
 			logger.debug(err);
-			if (err instanceof Error) {
-				return Promise.reject(new RequestError(err));
-			}
-			return Promise.reject(new RequestError(new Error(String(err))));
+			const error = err instanceof Error ? err : new Error(String(err));
+			return Promise.reject(new RequestError(error));
 		}
 	}
 

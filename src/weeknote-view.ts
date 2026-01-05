@@ -79,7 +79,8 @@ export class WeeknoteView extends ItemView {
 
   t(key: I18nKey): string {
     const lang = this.plugin.settings.language;
-    return i18n[lang][key] as string;
+    const val = i18n[lang][key];
+    return Array.isArray(val) ? val.join(", ") : val;
   }
 
   // Convert moment.js timestamp format to regex for parsing
@@ -951,7 +952,7 @@ export class WeeknoteView extends ItemView {
     // Re-render tabs
     if (this.tabsContainer) {
       const weekStart = this.plugin.generator.getWeekStartDate(this.selectedDate);
-      const days = t("days") as string[];
+      const days = i18n[this.plugin.settings.language].days;
       this.renderTabs(weekStart, days);
     }
     
@@ -964,8 +965,8 @@ export class WeeknoteView extends ItemView {
       }
     }
     if (this.viewToggleBtn) {
-      const label = this.viewToggleBtn.querySelector(".toggle-label") as HTMLElement;
-      if (label) {
+      const label = this.viewToggleBtn.querySelector(".toggle-label");
+      if (label instanceof HTMLElement) {
         if (this.currentMemoView === "task") {
           label.setText(t("memoViewLabel"));
         } else {
@@ -1203,13 +1204,14 @@ export class WeeknoteView extends ItemView {
       const activeEl = document.activeElement;
       if (activeEl) {
           const tag = activeEl.tagName.toLowerCase();
-          if (tag === "input" || tag === "textarea" || (activeEl as HTMLElement).isContentEditable) {
+          if (tag === "input" || tag === "textarea" || (activeEl instanceof HTMLElement && activeEl.isContentEditable)) {
               return;
           }
       }
       
       // Check for selected memo card
-      const selectedMemo = this.memoListContainer?.querySelector(".weeknote-card.is-selected") as HTMLElement | null;
+      const selectedMemoElement = this.memoListContainer?.querySelector(".weeknote-card.is-selected");
+      const selectedMemo = selectedMemoElement instanceof HTMLElement ? selectedMemoElement : null;
       if (selectedMemo) {
           if (e.key === "Escape") {
               e.preventDefault();
@@ -1312,7 +1314,7 @@ export class WeeknoteView extends ItemView {
       if ((e.key === "ArrowUp" || e.key === "ArrowDown") && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
           if (!selectedTask && this.taskListContainer) {
               e.preventDefault();
-              const rows = Array.from(this.taskListContainer.querySelectorAll(".weeknote-task-row")) as HTMLElement[];
+              const rows = Array.from(this.taskListContainer.querySelectorAll(".weeknote-task-row")).filter((el): el is HTMLElement => el instanceof HTMLElement);
               if (rows.length === 0) return;
               
               let targetRow: HTMLElement | undefined;
@@ -1450,7 +1452,7 @@ export class WeeknoteView extends ItemView {
             ev.stopImmediatePropagation();
             
             // Find the closest element with URL info
-            const linkEl = (el as HTMLElement).closest("a, .task-clickable-link, .github-link-inline, [data-link-url]");
+            const linkEl = el.closest("a, .task-clickable-link, .github-link-inline, [data-link-url]");
             
             // Get the URL from this link
             let linkUrl: string | undefined;
@@ -1762,24 +1764,12 @@ export class WeeknoteView extends ItemView {
         
         const relSpan = btn.createDiv({ cls: "copy-option-relative" });
         relSpan.setText(relativeLabel);
-        relSpan.style.color = "var(--text-muted)";
-        relSpan.style.fontSize = "0.75em";
-        relSpan.style.lineHeight = "1.2";
-        relSpan.style.marginBottom = "2px";
-        relSpan.style.textAlign = "center";
-        relSpan.style.whiteSpace = "nowrap";
-        relSpan.style.textTransform = "none"; // Prevent uppercase
         
         const dateSpan = btn.createDiv({ cls: "copy-option-date" });
         dateSpan.setText(dateLabel);
-        dateSpan.style.color = "var(--text-normal)";
-        dateSpan.style.fontSize = "0.9em";
-        dateSpan.style.lineHeight = "1.2";
-        dateSpan.style.textAlign = "center";
-        dateSpan.style.whiteSpace = "nowrap";
 
         // Async check for tasks count
-        this.plugin.getDayTasks(targetDate).then(tasks => {
+        void this.plugin.getDayTasks(targetDate).then(tasks => {
              if (tasks.length > 0) {
                  btn.setAttribute("title", `${tasks.length} tasks found`);
              } else {
@@ -1794,8 +1784,7 @@ export class WeeknoteView extends ItemView {
             if (btn.hasClass("is-disabled")) return;
 
             btn.addClass("is-loading");
-            btn.style.opacity = "0.7";
-            btn.style.cursor = "wait";
+            btn.addClass("copy-option-loading");
             
             // Disable all buttons
             wrapper.querySelectorAll(".copy-task-option-btn").forEach(b => {
@@ -2170,9 +2159,10 @@ export class WeeknoteView extends ItemView {
         
         // Check if clicked on a link element to get external URL
         let externalUrl: string | undefined;
-        const target = e.target as HTMLElement;
-        const linkEl = target.closest(".task-clickable-link") as HTMLElement | null;
-        if (linkEl) {
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return;
+        const linkEl = target.closest(".task-clickable-link");
+        if (linkEl instanceof HTMLElement) {
           externalUrl = linkEl.getAttribute("data-link-url") || undefined;
         }
         
@@ -2257,7 +2247,7 @@ export class WeeknoteView extends ItemView {
               // Hide insert buttons during keyboard navigation
               container.addClass("disable-hover");
               grid.querySelectorAll(".task-insert-btn").forEach(btn => {
-                (btn as HTMLElement).style.opacity = "0";
+                btn.addClass("weeknote-hidden");
               });
               if (taskIndex > 0) {
                 const prevTask = flatTasks[taskIndex - 1];
@@ -2281,7 +2271,7 @@ export class WeeknoteView extends ItemView {
               // Hide insert buttons during keyboard navigation
               container.addClass("disable-hover");
               grid.querySelectorAll(".task-insert-btn").forEach(btn => {
-                (btn as HTMLElement).style.opacity = "0";
+                btn.addClass("weeknote-hidden");
               });
               if (taskIndex < flatTasks.length - 1) {
                 const nextTask = flatTasks[taskIndex + 1];
@@ -2435,9 +2425,9 @@ export class WeeknoteView extends ItemView {
     container.addEventListener("mousemove", () => {
       if (container.hasClass("disable-hover")) {
         container.removeClass("disable-hover");
-        // Clear inline opacity styles
+        // Clear hidden state
         grid.querySelectorAll(".task-insert-btn").forEach(btn => {
-          (btn as HTMLElement).style.opacity = "";
+          btn.removeClass("weeknote-hidden");
         });
       }
     });
@@ -2517,7 +2507,7 @@ export class WeeknoteView extends ItemView {
     
     const outsideClickHandler = (e: MouseEvent) => {
       // If clicking inside the input row, do nothing
-      if (inputRow.contains(e.target as Node)) return;
+      if (e.target instanceof Node && inputRow.contains(e.target)) return;
       
       // If clicking on another add button or insert button, let that handler take over
       // But we still need to cleanup this one.
@@ -2578,7 +2568,7 @@ export class WeeknoteView extends ItemView {
       await this.refreshContent();
       
       // Select the last task card (newly added task)
-      const rows = Array.from(container.querySelectorAll(".weeknote-task-row")) as HTMLElement[];
+      const rows = Array.from(container.querySelectorAll(".weeknote-task-row")).filter((el): el is HTMLElement => el instanceof HTMLElement);
       if (rows.length > 0) {
         const lastRow = rows[rows.length - 1];
         lastRow.addClass("is-selected");
@@ -2635,8 +2625,8 @@ export class WeeknoteView extends ItemView {
     let isCleanedUp = false;
 
     const outsideClickHandler = (e: MouseEvent) => {
-       const target = e.target as HTMLElement;
-       if (!wrapper.contains(target)) {
+       const target = e.target;
+       if (target instanceof Node && !wrapper.contains(target)) {
          // Click outside cancels edit
          // Delay cleanup to allow click event to propagate to target first
          setTimeout(() => {
@@ -2667,7 +2657,7 @@ export class WeeknoteView extends ItemView {
 
       if (restoreSelection) {
         // Ensure row is selected if needed (usually it stays selected)
-        const allRows = this.taskListContainer.querySelectorAll(".weeknote-task-row");
+        // const allRows = this.taskListContainer.querySelectorAll(".weeknote-task-row");
         // Only select this row if we are restoring selection
         // But if we are cleaning up due to other action (activeInputCleanup called externally),
         // we might not want to touch selection here if the other action handles it.
@@ -2734,15 +2724,15 @@ export class WeeknoteView extends ItemView {
       if (isSaving) return;
       if (this.isIgnoringBlur) return;
       
-      const related = e.relatedTarget as HTMLElement;
+      const related = e.relatedTarget;
       
       // If related is null, focus went outside the app (window blur) - don't cancel
-      if (!related) return;
+      if (!(related instanceof HTMLElement)) return;
       
       // Do not cancel if clicking buttons inside wrapper
       if (wrapper.contains(related)) return;
 
-      const clickedRow = related?.closest(".weeknote-task-row");
+      const clickedRow = related.closest(".weeknote-task-row");
       if (clickedRow && clickedRow !== row) {
         // Just cleanup without restoring selection or refreshing target.
         // Let the subsequent click/change event on the target row handle selection/updates.
@@ -3109,10 +3099,12 @@ export class WeeknoteView extends ItemView {
       updatePosition();
     };
     
-    // Position tooltip with fixed positioning
-    tooltip.style.position = "fixed";
-    tooltip.style.transform = "translate(-50%, -100%)";
-    tooltip.style.zIndex = "1000";
+    // Use setCssStyles for better performance and to avoid element.style usage where possible
+    tooltip.setCssStyles({
+      position: "fixed",
+      transform: "translate(-50%, -100%)",
+      zIndex: "1000"
+    });
     
     // Initial position
     updatePosition();
@@ -3310,13 +3302,16 @@ export class WeeknoteView extends ItemView {
     
     card.empty();
     card.addClass("weeknote-card-editing");
-    card.style.minHeight = `${originalHeight}px`;
+    // Using setCssStyles instead of .style
+    card.setCssStyles({ minHeight: `${originalHeight}px` });
     
     const wrapper = card.createDiv({ cls: "weeknote-card-edit-wrapper" });
     
-    const input = wrapper.createEl("textarea", {
+    const inputField = wrapper.createEl("textarea", {
       cls: "weeknote-card-input",
-    }) as HTMLTextAreaElement;
+    });
+    if (!(inputField instanceof HTMLTextAreaElement)) return;
+    const input = inputField;
     input.value = content;
     input.focus();
     input.select();
@@ -3330,7 +3325,7 @@ export class WeeknoteView extends ItemView {
       cleanup();
       card.empty();
       card.removeClass("weeknote-card-editing");
-      card.style.minHeight = "";
+      card.setCssStyles({ minHeight: "" });
       
       // Store metadata (might have been updated)
       card.dataset.memo = originalMemo;
@@ -3509,9 +3504,10 @@ export class WeeknoteView extends ItemView {
       const hasNewlines = input.value.includes("\n");
       if (hasNewlines) {
         input.setCssStyles({ height: "auto" });
-        input.setCssStyles({ height: `${Math.min(input.scrollHeight, 150)}px`, overflowY: input.scrollHeight > 150 ? "auto" : "hidden" });
+        input.setCssStyles({ height: `${Math.min(input.scrollHeight, 150)}px` });
+        input.setCssStyles({ overflowY: input.scrollHeight > 150 ? "auto" : "hidden" });
       } else {
-        input.setCssStyles({ height: "22px", overflowY: "hidden" });
+        input.setCssStyles({ height: "22px" });
       }
     };
     input.addEventListener("input", autoResize);
@@ -3563,7 +3559,8 @@ export class WeeknoteView extends ItemView {
 
   toggleMemoTaskView(): void {
     const t = this.t.bind(this);
-    const label = this.viewToggleBtn.querySelector(".toggle-label") as HTMLElement;
+    const label = this.viewToggleBtn.querySelector(".toggle-label");
+    if (!(label instanceof HTMLElement)) return;
     
     if (this.currentMemoView === "memo") {
       // Switch to TASK view

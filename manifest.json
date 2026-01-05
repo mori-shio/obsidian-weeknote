@@ -1,7 +1,7 @@
 {
     "id": "weeknote",
     "name": "Weeknote",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "minAppVersion": "0.15.0",
     "description": "Manage weekly reports with tasks, memos, and calendar sync.",
     "author": "mori-shio",

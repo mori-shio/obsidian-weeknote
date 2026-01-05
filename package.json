@@ -1,6 +1,6 @@
 {
   "name": "weeknote",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A weeknote manager with Google Calendar integration",
   "main": "main.js",
   "scripts": {

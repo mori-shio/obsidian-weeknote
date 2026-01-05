@@ -265,9 +265,8 @@ class ICSParser {
   }
 }
 
-// Worker message listener
 self.addEventListener("message", async (e: MessageEvent<WorkerRequest>) => {
-  const { icsUrl, icsData, icsBuffer, startDate, endDate, excludePatterns } = e.data;
+  const { icsData, icsBuffer, startDate, endDate, excludePatterns } = e.data;
   
   try {
     let dataToProcess: string;
@@ -278,9 +277,7 @@ self.addEventListener("message", async (e: MessageEvent<WorkerRequest>) => {
       dataToProcess = decoder.decode(icsBuffer);
     } else if (icsData) {
       dataToProcess = icsData;
-    } else if (icsUrl) {
-      const response = await fetch(icsUrl);
-      dataToProcess = await response.text();
+      throw new Error("icsUrl fetch is not supported in Worker (as per Obsidian guidelines). Please provide icsData or icsBuffer.");
     } else {
       throw new Error("No ICS data source provided");
     }
