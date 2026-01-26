@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Task parser now supports mixed indentation styles (tabs and spaces)
 
+### Fixed
+- Schedule strikethrough not updating after accepting event in calendar
+
 ## [1.1.2] - Previous Release
 
 _Initial public release with core features._

@@ -217,16 +217,18 @@ class ICSParser {
     }
 
     // Try to find the user's participation status
+    // Use only the first attendee's status (Google Calendar typically puts the calendar owner first)
     let status: "accepted" | "tentative" | "declined" | undefined = undefined;
     try {
       const component = event.component as { getAllProperties: (name: string) => Array<{ getParameter: (name: string) => string | null }> } | undefined;
       if (component) {
         const attendees = component.getAllProperties("attendee");
-        for (const attendee of attendees) {
-          const partstat = attendee.getParameter("partstat");
+        // Only check the first attendee (usually the calendar owner in Google Calendar ICS)
+        if (attendees.length > 0) {
+          const firstAttendee = attendees[0];
+          const partstat = firstAttendee.getParameter("partstat");
           if (partstat === "DECLINED") {
             status = "declined";
-            break; 
           } else if (partstat === "TENTATIVE") {
             status = "tentative";
           } else if (partstat === "ACCEPTED") {
