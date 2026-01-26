@@ -12,6 +12,45 @@ export class TaskService {
     private processTaskContent: (text: string) => Promise<string>
   ) {}
 
+  // Get the indent string based on settings
+  private getIndentString(): string {
+    switch (this.settings.taskIndentStyle) {
+      case "2-spaces":
+        return "  ";
+      case "4-spaces":
+        return "    ";
+      case "tab":
+      default:
+        return "\t";
+    }
+  }
+
+  // Get the indent width (for calculating levels from existing content)
+  private getIndentWidth(): number {
+    switch (this.settings.taskIndentStyle) {
+      case "2-spaces":
+        return 2;
+      case "4-spaces":
+        return 4;
+      case "tab":
+      default:
+        return 1; // Tab counts as 1 character
+    }
+  }
+
+  // Calculate level from indentation, supporting mixed styles
+  private calculateLevelFromIndent(indentStr: string): number {
+    // Count tabs first
+    const tabCount = (indentStr.match(/\t/g) || []).length;
+    // Count remaining spaces (after removing tabs)
+    const spacesOnly = indentStr.replace(/\t/g, "");
+    const spaceCount = spacesOnly.length;
+    
+    // Each tab = 1 level, spaces use current setting width
+    const indentWidth = this.settings.taskIndentStyle === "tab" ? 2 : this.getIndentWidth();
+    return tabCount + Math.floor(spaceCount / indentWidth);
+  }
+
   async getDayTasks(date: moment.Moment): Promise<TaskItem[]> {
     const filePath = this.fileUtils.getWeeknotePath(date);
     const file = this.app.vault.getAbstractFileByPath(filePath);
@@ -63,8 +102,7 @@ export class TaskService {
       const match = line.match(/^(\s*)- \[([ x])\] (.+)$/);
       if (!match) continue;
 
-      const indent = match[1].length;
-      const level = Math.floor(indent / 2);
+      const level = this.calculateLevelFromIndent(match[1]);
       const checked = match[2] === "x";
       const content = match[3];
 
@@ -218,7 +256,8 @@ export class TaskService {
     const linesToAdd: string[] = [];
     const process = (taskList: TaskItem[]) => {
       for (const t of taskList) {
-        const indent = "  ".repeat(t.level || 0);
+        const indentStr = this.getIndentString();
+        const indent = indentStr.repeat(t.level || 0);
         let line = "";
         if (t.url) {
             line = `${indent}- [ ] [${t.title}](${t.url})`;
@@ -403,13 +442,15 @@ export class TaskService {
       const markerIndex = lineToMove.search(/- \[[ x]\]/);
       if (markerIndex >= 0) {
         const content = lineToMove.substring(markerIndex);
-        const indent = "  ".repeat(targetLevel);
+        const indentStr = this.getIndentString();
+        const indent = indentStr.repeat(targetLevel);
         lineToMove = `${indent}${content}`;
       } else {
         const bulletIndex = lineToMove.search(/- /);
         if (bulletIndex >= 0) {
            const content = lineToMove.substring(bulletIndex);
-           const indent = "  ".repeat(targetLevel);
+           const indentStr = this.getIndentString();
+           const indent = indentStr.repeat(targetLevel);
            lineToMove = `${indent}${content}`;
         }
       }

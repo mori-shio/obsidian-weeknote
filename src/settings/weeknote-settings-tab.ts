@@ -121,6 +121,23 @@ export class WeeknoteSettingTab extends PluginSettingTab {
           })
       );
 
+    new Setting(containerEl)
+      .setName(t("taskIndentStyle"))
+      .setDesc(t("taskIndentStyleDesc"))
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOptions({
+            "tab": t("taskIndentTab"),
+            "2-spaces": t("taskIndent2Spaces"),
+            "4-spaces": t("taskIndent4Spaces"),
+          })
+          .setValue(this.plugin.settings.taskIndentStyle || "tab")
+          .onChange(async (value) => {
+            this.plugin.settings.taskIndentStyle = value as "2-spaces" | "4-spaces" | "tab";
+            await this.plugin.saveSettings();
+          })
+      );
+
     // Week Settings (Moved to General Settings)
     const dayOptions = lang === "ja" 
       ? { "0": "日曜日", "1": "月曜日", "2": "火曜日", "3": "水曜日", "4": "木曜日", "5": "金曜日", "6": "土曜日" }
