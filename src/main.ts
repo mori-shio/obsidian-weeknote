@@ -18,6 +18,7 @@ import { WeeknoteView } from "./weeknote-view";
 import {
   WeeklySchedule,
   TaskItem,
+  MemoItem,
   WeeknoteSettings,
 } from "./types";
 import { setLanguage } from "./i18n";
@@ -246,12 +247,23 @@ export default class WeeknotePlugin extends Plugin {
     return this.memoService.updateMemo(originalMemo, timestamp, newContent);
   }
 
-  async deleteMemo(originalMemo: string): Promise<void> {
-    return this.memoService.deleteMemo(originalMemo);
+  async deleteMemo(memo: MemoItem | string): Promise<void> {
+    if (typeof memo === "string") {
+      return this.memoService.deleteMemoByLine(memo);
+    }
+    return this.memoService.deleteMemo(memo);
   }
 
   async getDayMemos(date: moment.Moment): Promise<string[]> {
     return this.memoService.getDayMemos(date);
+  }
+
+  async getDayMemosStructured(date: moment.Moment): Promise<MemoItem[]> {
+    return this.memoService.getDayMemosStructured(date);
+  }
+
+  async insertReplyToWeeknote(parentMemo: MemoItem, content: string, date?: moment.Moment): Promise<void> {
+    return this.memoService.insertReply(parentMemo, content, date);
   }
 
   async getTodaysMemos(): Promise<string[]> {

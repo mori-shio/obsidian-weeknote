@@ -166,8 +166,9 @@ export const i18n: { ja: I18nDictionary; en: I18nDictionary } = {
     helpEnterSave: "保存",
     helpEscCancel: "キャンセル",
     
-    // Help panel (Memo)
-    memoHelpTitle: "キーボード操作",
+    saveButton: "保存",
+    replyButton: "返信",
+    memoHelpTitle: "メモのショートカット",
     // Unfocused
     memoHelpUnfocused: "未フォーカス時",
     memoHelpEnterFocus: "メモ入力モードへ",
@@ -375,8 +376,9 @@ export const i18n: { ja: I18nDictionary; en: I18nDictionary } = {
     helpEnterSave: "Save",
     helpEscCancel: "Cancel",
     
-    // Help panel (Memo)
-    memoHelpTitle: "Keyboard shortcuts",
+    saveButton: "Save",
+    replyButton: "Reply",
+    memoHelpTitle: "Memo Shortcuts",
     // Unfocused
     memoHelpUnfocused: "Unfocused",
     memoHelpEnterFocus: "Enter memo input mode",

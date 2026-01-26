@@ -11,6 +11,7 @@ import { UrlProcessor } from "./url-processor";
 import { createTag } from "./github-renderer";
 import {
   TaskItem,
+  MemoItem,
   IWeeknotePlugin
 } from "./types";
 import { i18n, I18nKey } from "./i18n";
@@ -1278,7 +1279,8 @@ export class WeeknoteView extends ItemView {
           } else if (e.key === "Delete" || e.key === "Backspace") {
               // Delete the selected memo card
               e.preventDefault();
-              const memo = selectedMemo.dataset.memo || "";
+              const memoItemStr = selectedMemo.dataset.memoItem;
+              const memo = memoItemStr ? JSON.parse(memoItemStr) : (selectedMemo.dataset.memo || "");
               if (memo) {
                   if (this.activeMemoTooltip) {
                       this.activeMemoTooltip.cleanup();
@@ -1381,7 +1383,7 @@ export class WeeknoteView extends ItemView {
   async loadDayMemos(container: HTMLElement, date: moment.Moment): Promise<void> {
     const t = this.t.bind(this);
     try {
-      const memos = await this.plugin.getDayMemos(date);
+      const memos = await this.plugin.getDayMemosStructured(date);
       
       // Control scrollability based on content
       if (memos.length === 0) {
@@ -1391,122 +1393,16 @@ export class WeeknoteView extends ItemView {
       }
       container.removeClass("no-scroll");
 
-      // Memos in chronological order (oldest at top, newest at bottom)
-      const timestampRegex = this.getTimestampRegex();
-      
-      for (const memo of memos) {
-        const card = container.createDiv({ cls: "weeknote-card" });
+      // Render memos and their replies
+      for (const parent of memos) {
+        const parentCard = this.renderMemoCard(container, parent);
         
-        let timestamp = "";
-        let content = memo;
-        
-        // Try to match using the configured timestamp format
-        const formatMatch = memo.match(timestampRegex);
-        if (formatMatch) {
-          // First capture group is the full timestamp, last is the content
-          timestamp = formatMatch[1];
-          content = formatMatch[formatMatch.length - 1];
-        } else {
-          // Fallback: try common patterns for backward compatibility
-          const parenMatch = memo.match(/^\(([^)]+)\)\s*(.*)$/);
-          if (parenMatch) {
-            timestamp = parenMatch[1];
-            content = parenMatch[2];
-          } else {
-            const dateTimeMatch = memo.match(/^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}(?::\d{2})?)\s+(.*)$/);
-            if (dateTimeMatch) {
-              timestamp = dateTimeMatch[1];
-              content = dateTimeMatch[2];
-            } else {
-              const timeMatch = memo.match(/^(\d{2}:\d{2}(?::\d{2})?)\s+(.*)$/);
-              if (timeMatch) {
-                timestamp = timeMatch[1];
-                content = timeMatch[2];
-              }
-            }
+        if (parent.replies && parent.replies.length > 0) {
+          const replyGroup = container.createDiv({ cls: "weeknote-memo-replies" });
+          for (const reply of parent.replies) {
+            this.renderMemoCard(replyGroup, reply);
           }
         }
-        
-        // Store metadata for global keyboard shortcuts and editing
-        card.dataset.memo = memo;
-        card.dataset.timestamp = timestamp;
-        card.dataset.content = content;
-        
-        const contentEl = card.createDiv({ cls: "weeknote-card-content" });
-        this.renderRichContent(contentEl, content, true); // Disable direct navigation for memo cards
-        
-        // Override link click handlers to prevent direct navigation (let card handler handle it)
-        // Include all clickable elements and their descendants
-        const clickableElements = contentEl.querySelectorAll("a, .task-clickable-link, .github-link-inline, .github-link-inline *, [data-link-url], [data-link-url] *");
-        clickableElements.forEach(el => {
-          el.addEventListener("click", (ev) => {
-            ev.preventDefault();
-            ev.stopImmediatePropagation();
-            
-            // Find the closest element with URL info
-            const linkEl = el.closest("a, .task-clickable-link, .github-link-inline, [data-link-url]");
-            
-            // Get the URL from this link
-            let linkUrl: string | undefined;
-            if (linkEl instanceof HTMLAnchorElement) {
-              linkUrl = linkEl.href;
-            } else if (linkEl) {
-              // Check for data-link-url attribute or nested anchor
-              linkUrl = linkEl.getAttribute("data-link-url") || undefined;
-              if (!linkUrl) {
-                const anchor = linkEl.querySelector("a");
-                linkUrl = anchor?.href;
-              }
-            }
-            
-            // Store URL in card dataset for the card handler to read
-            if (linkUrl) {
-              card.dataset.clickedUrl = linkUrl;
-            }
-            
-            // Manually dispatch a click on the card to trigger selection
-            card.dispatchEvent(new MouseEvent("click", {
-              bubbles: true,
-              cancelable: true,
-              clientX: (ev as MouseEvent).clientX,
-              clientY: (ev as MouseEvent).clientY
-            }));
-          }, true); // capture phase to intercept before existing handlers
-        });
-        
-        const timeEl = card.createDiv({ cls: "weeknote-card-time" });
-        timeEl.setText(timestamp);
-        
-        // Click to select card and show action tooltip
-        // Remove any existing handler first
-        const cardWithHandler = card as HTMLElement & { _memoClickHandler?: (e: MouseEvent) => void };
-        if (cardWithHandler._memoClickHandler) {
-          card.removeEventListener("click", cardWithHandler._memoClickHandler);
-        }
-        
-        const clickHandler = (e: MouseEvent) => {
-          e.stopPropagation();
-          e.preventDefault();
-          
-          // Check if URL was stored from link click
-          const clickedUrl = card.dataset.clickedUrl;
-          delete card.dataset.clickedUrl; // Clear after reading
-          
-          // Deselect previous card and tasks
-          const allCards = container.querySelectorAll(".weeknote-card");
-          allCards.forEach(c => c.removeClass("is-selected"));
-          this.taskListContainer?.querySelectorAll(".is-selected").forEach(el => el.removeClass("is-selected"));
-          
-          // Show action tooltip (only pass URL if clicked on link)
-          // Note: This may cleanup existing tooltip which deselects the old card
-          this.showMemoActionTooltip(e, card, memo, timestamp, content, contentEl, clickedUrl);
-          
-          // Select this card (after tooltip cleanup to avoid being deselected)
-          card.addClass("is-selected");
-        };
-        
-        cardWithHandler._memoClickHandler = clickHandler;
-        card.addEventListener("click", clickHandler);
       }
       
       // Note: Scroll to bottom is handled by the caller (layout functions)
@@ -1514,6 +1410,84 @@ export class WeeknoteView extends ItemView {
       container.createDiv({ cls: "weeknote-empty", text: t("loadMemoFailed") });
     }
   }
+
+  /**
+   * Helper to render a single memo card (either parent or reply)
+   */
+  private renderMemoCard(container: HTMLElement, memo: MemoItem): HTMLElement {
+    const card = container.createDiv({ cls: "weeknote-card" });
+    if (memo.level > 0) {
+      card.addClass("weeknote-card-reply");
+      card.createDiv({ cls: "weeknote-reply-indicator", text: "↳" });
+    }
+    
+    // Store metadata for global keyboard shortcuts and editing
+    card.dataset.memo = memo.rawLine;
+    card.dataset.timestamp = memo.timestamp;
+    card.dataset.content = memo.content;
+    card.dataset.level = String(memo.level);
+    
+    // Store full MemoItem as JSON for easier access in tooltips
+    card.dataset.memoItem = JSON.stringify(memo);
+    
+    const contentEl = card.createDiv({ cls: "weeknote-card-content" });
+    this.renderRichContent(contentEl, memo.content, true); // Disable direct navigation for memo cards
+    
+    // Override link click handlers to prevent direct navigation (let card handler handle it)
+    const clickableElements = contentEl.querySelectorAll("a, .task-clickable-link, .github-link-inline, .github-link-inline *, [data-link-url], [data-link-url] *");
+    clickableElements.forEach(el => {
+      el.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        
+        const linkEl = el.closest("a, .task-clickable-link, .github-link-inline, [data-link-url]");
+        let linkUrl: string | undefined;
+        if (linkEl instanceof HTMLAnchorElement) {
+          linkUrl = linkEl.href;
+        } else if (linkEl) {
+          linkUrl = linkEl.getAttribute("data-link-url") || undefined;
+          if (!linkUrl) {
+            const anchor = linkEl.querySelector("a");
+            linkUrl = anchor?.href;
+          }
+        }
+        
+        if (linkUrl) {
+          card.dataset.clickedUrl = linkUrl;
+        }
+        
+        card.dispatchEvent(new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+          clientX: (ev as MouseEvent).clientX,
+          clientY: (ev as MouseEvent).clientY
+        }));
+      }, true);
+    });
+    
+    const timeEl = card.createDiv({ cls: "weeknote-card-time" });
+    timeEl.setText(memo.timestamp);
+    
+    // Click handler
+    const clickHandler = (e: MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      
+      const clickedUrl = card.dataset.clickedUrl;
+      delete card.dataset.clickedUrl;
+      
+      const allCards = this.memoListContainer?.querySelectorAll(".weeknote-card");
+      allCards?.forEach(c => c.removeClass("is-selected"));
+      this.taskListContainer?.querySelectorAll(".is-selected").forEach(el => el.removeClass("is-selected"));
+      
+      this.showMemoActionTooltip(e, card, memo, contentEl, clickedUrl);
+      card.addClass("is-selected");
+    };
+    
+    card.addEventListener("click", clickHandler);
+    return card;
+  }
+
 
   async loadDaySchedule(container: HTMLElement, date: moment.Moment): Promise<void> {
     const t = this.t.bind(this);
@@ -2938,12 +2912,13 @@ export class WeeknoteView extends ItemView {
   private showMemoActionTooltip(
     e: MouseEvent,
     card: HTMLElement,
-    originalMemo: string,
-    timestamp: string,
-    content: string,
+    memoItem: MemoItem,
     contentEl: HTMLElement,
     externalUrl?: string
   ): void {
+    const originalMemo = memoItem.rawLine;
+    const timestamp = memoItem.timestamp;
+    const content = memoItem.content;
     // Clean up any existing tooltip first
     if (this.activeMemoTooltip) {
       this.activeMemoTooltip.cleanup();
@@ -2983,6 +2958,23 @@ export class WeeknoteView extends ItemView {
       tooltip.createSpan({ cls: "memo-action-separator", text: "|" });
     }
     
+    // Reply button (only for parent memos, not replies)
+    const level = parseInt(card.dataset.level || "0");
+    if (level === 0) {
+      const replyBtn = tooltip.createEl("button", { cls: "memo-action-btn memo-action-icon-btn" });
+      setIcon(replyBtn, "message-circle");
+      replyBtn.setAttribute("title", this.t("replyButton"));
+      replyBtn.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        cleanup();
+        this.showReplyInput(card);
+      });
+      
+      // Separator
+      tooltip.createSpan({ cls: "memo-action-separator", text: "|" });
+    }
+    
     // Edit button (icon)
     const editBtn = tooltip.createEl("button", { cls: "memo-action-btn memo-action-icon-btn" });
     setIcon(editBtn, "pencil");
@@ -3000,7 +2992,7 @@ export class WeeknoteView extends ItemView {
       ev.preventDefault();
       ev.stopPropagation();
       cleanup();
-      await this.plugin.deleteMemo(originalMemo);
+      await this.plugin.deleteMemo(memoItem);
       await this.refreshMemos();
     });
     
@@ -3292,6 +3284,72 @@ export class WeeknoteView extends ItemView {
     return parseScheduleContentHelper(content);
   }
 
+  /**
+   * Show an inline input field for replying to a memo
+   */
+  showReplyInput(parentCard: HTMLElement): void {
+    const memoItemStr = parentCard.dataset.memoItem;
+    if (!memoItemStr) return;
+    const parentMemo: MemoItem = JSON.parse(memoItemStr);
+
+    // Create reply input container
+    const replyContainer = document.createElement("div");
+    replyContainer.className = "weeknote-memo-reply-input-container";
+    
+    // Insert after the parent card
+    parentCard.insertAdjacentElement("afterend", replyContainer);
+    
+    const wrapper = replyContainer.createDiv({ cls: "weeknote-card-edit-wrapper" });
+    const inputField = wrapper.createEl("textarea", {
+      cls: "weeknote-card-input",
+      placeholder: this.plugin.settings.placeholder || "Reply to memo..."
+    });
+    if (!(inputField instanceof HTMLTextAreaElement)) return;
+    const input = inputField;
+    input.focus();
+
+    const buttonCol = wrapper.createDiv({ cls: "weeknote-card-buttons" });
+    const saveBtn = buttonCol.createEl("button", { text: "✓", cls: "weeknote-card-save" });
+    const cancelBtn = buttonCol.createEl("button", { text: "✕", cls: "weeknote-card-cancel" });
+
+    const cleanup = () => {
+      replyContainer.remove();
+      parentCard.removeClass("is-selected");
+    };
+
+    saveBtn.addEventListener("click", async () => {
+      const content = input.value.trim();
+      if (content) {
+        saveBtn.addClass("is-loading");
+        try {
+          const processedContent = await this.processTaskContent(content);
+          await this.plugin.insertReplyToWeeknote(parentMemo, processedContent, this.selectedDate);
+          cleanup();
+          await this.refreshMemos();
+        } catch (error) {
+          new Notice(`Reply failed: ${error}`);
+          saveBtn.removeClass("is-loading");
+        }
+      } else {
+        cleanup();
+      }
+    });
+
+    cancelBtn.addEventListener("click", () => {
+      cleanup();
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        saveBtn.click();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        cancelBtn.click();
+      }
+    });
+  }
+
   editMemo(card: HTMLElement, originalMemo: string, timestamp: string, content: string): void {
     // Save the original height before emptying
     const originalHeight = card.offsetHeight;
@@ -3396,7 +3454,9 @@ export class WeeknoteView extends ItemView {
         this.taskListContainer?.querySelectorAll(".is-selected").forEach(el => el.removeClass("is-selected"));
         
         // Show action tooltip (may cleanup existing tooltip)
-        this.showMemoActionTooltip(e, card, originalMemo, timestamp, content, contentEl, clickedUrl);
+        const memoItemStr = card.dataset.memoItem || "{}";
+        const memoItem: MemoItem = JSON.parse(memoItemStr);
+        this.showMemoActionTooltip(e, card, memoItem, contentEl, clickedUrl);
         
         // Select this card (after tooltip cleanup to avoid being deselected)
         card.addClass("is-selected");

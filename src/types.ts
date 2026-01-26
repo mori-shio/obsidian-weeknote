@@ -37,6 +37,16 @@ export interface TaskItem {
   lineIndex: number;    // Original line index in file for editing
 }
 
+// Memo item for hierarchical memo display (supports replies)
+export interface MemoItem {
+  timestamp: string;    // Formatted timestamp string
+  content: string;      // Memo content text
+  rawLine: string;      // Original line from file (for editing/deletion)
+  lineIndex: number;    // Original line index in file
+  level: number;        // 0 = parent memo, 1 = reply
+  replies: MemoItem[];  // Child replies (only for level 0)
+}
+
 export type MarkdownIndentStyle = "2-spaces" | "4-spaces" | "tab";
 
 export interface WeeknoteSettings {
@@ -120,9 +130,11 @@ export interface IWeeknotePlugin {
   
   // Memo operations
   getDayMemos(date: moment.Moment): Promise<string[]>;
+  getDayMemosStructured(date: moment.Moment): Promise<MemoItem[]>;
   insertMemoToWeeknote(content: string, date?: moment.Moment): Promise<void>;
+  insertReplyToWeeknote(parentMemo: MemoItem, content: string, date?: moment.Moment): Promise<void>;
   updateMemo(originalMemo: string, timestamp: string, newContent: string): Promise<void>;
-  deleteMemo(originalMemo: string): Promise<void>;
+  deleteMemo(memo: MemoItem | string): Promise<void>;
   
   // Task operations
   getDayTasks(date: moment.Moment): Promise<TaskItem[]>;

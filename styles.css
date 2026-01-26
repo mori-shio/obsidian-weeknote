@@ -600,6 +600,46 @@
   justify-content: flex-end;
 }
 
+/* Memo Replies */
+.weeknote-memo-replies {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.weeknote-card-reply {
+  margin-left: 24px;
+  background: var(--background-secondary-alt);
+  font-size: 0.95em;
+  padding: 8px 12px;
+  border-left: 2px solid var(--background-modifier-border);
+}
+
+.weeknote-card-reply::before {
+  display: none;
+  /* Parent bar is hidden for replies */
+}
+
+.weeknote-reply-indicator {
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 0.9em;
+  font-family: var(--font-monospace);
+  opacity: 0.6;
+}
+
+.weeknote-memo-reply-input-container {
+  margin-left: 24px;
+  padding: 8px;
+  background: var(--background-secondary-alt);
+  border-radius: 8px;
+  border: 1px dashed var(--interactive-accent);
+  margin-bottom: 8px;
+}
+
 .weeknote-memo-list {
   display: flex;
   flex-direction: column;
@@ -3299,7 +3339,9 @@ body.theme-dark .github-link-table .github-link-table-labels .github-link-table-
   background: var(--background-secondary);
   border-color: var(--interactive-accent);
   box-shadow: 0 0 0 1px var(--interactive-accent);
-}.weeknote-schedule-card.is-declined {
+}
+
+.weeknote-schedule-card.is-declined {
   opacity: 0.6;
 }
 
