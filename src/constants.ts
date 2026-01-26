@@ -4,7 +4,7 @@ export const DEFAULT_SETTINGS: WeeknoteSettings = {
   language: "en",
   layoutMode: "two-panel", // Default to current toggle design
   saveLinksToMarkdown: true,
-  taskIndentStyle: "tab", // Default to tab indentation
+  markdownIndentStyle: "tab", // Default to tab indentation
   googleCalendarIcsUrl: "",
   excludeEventPatterns: "", // Regex patterns separated by newline
   weekStartDay: 0, // Sunday

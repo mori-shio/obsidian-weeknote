@@ -33,12 +33,12 @@ export const i18n: { ja: I18nDictionary; en: I18nDictionary } = {
     saveLinksToMarkdown: "URLをMarkdownリンクに変換",
     saveLinksToMarkdownDesc: "貼り付けたURLのタイトルを自動取得し [タイトル](URL) 形式に変換",
     
-    // Task indent settings
-    taskIndentStyle: "タスクのインデント",
-    taskIndentStyleDesc: "タスクの階層を表すインデントの文字を選択",
-    taskIndent2Spaces: "半角スペース2個",
-    taskIndent4Spaces: "半角スペース4個",
-    taskIndentTab: "タブ",
+    // Markdown indent settings
+    markdownIndentStyle: "Markdownのインデント",
+    markdownIndentStyleDesc: "リストの階層を表すインデントの文字を選択",
+    markdownIndent2Spaces: "半角スペース2個",
+    markdownIndent4Spaces: "半角スペース4個",
+    markdownIndentTab: "タブ",
     
     // Week settings
     weekStartDay: "週の開始曜日",
@@ -244,12 +244,12 @@ export const i18n: { ja: I18nDictionary; en: I18nDictionary } = {
     saveLinksToMarkdown: "Convert URLs to markdown links",
     saveLinksToMarkdownDesc: "Automatically fetch title for pasted URLs and convert to [Title](URL)",
     
-    // Task indent settings
-    taskIndentStyle: "Task indentation",
-    taskIndentStyleDesc: "Choose the indentation character style for task hierarchy",
-    taskIndent2Spaces: "2 spaces",
-    taskIndent4Spaces: "4 spaces",
-    taskIndentTab: "Tab",
+    // Markdown indent settings
+    markdownIndentStyle: "Markdown indentation",
+    markdownIndentStyleDesc: "Choose the indentation character style for list hierarchy",
+    markdownIndent2Spaces: "2 spaces",
+    markdownIndent4Spaces: "4 spaces",
+    markdownIndentTab: "Tab",
     
     // Week settings
     weekStartDay: "Week start day",

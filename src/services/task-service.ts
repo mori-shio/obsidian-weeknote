@@ -14,7 +14,7 @@ export class TaskService {
 
   // Get the indent string based on settings
   private getIndentString(): string {
-    switch (this.settings.taskIndentStyle) {
+    switch (this.settings.markdownIndentStyle) {
       case "2-spaces":
         return "  ";
       case "4-spaces":
@@ -27,7 +27,7 @@ export class TaskService {
 
   // Get the indent width (for calculating levels from existing content)
   private getIndentWidth(): number {
-    switch (this.settings.taskIndentStyle) {
+    switch (this.settings.markdownIndentStyle) {
       case "2-spaces":
         return 2;
       case "4-spaces":
@@ -47,7 +47,7 @@ export class TaskService {
     const spaceCount = spacesOnly.length;
     
     // Each tab = 1 level, spaces use current setting width
-    const indentWidth = this.settings.taskIndentStyle === "tab" ? 2 : this.getIndentWidth();
+    const indentWidth = this.settings.markdownIndentStyle === "tab" ? 2 : this.getIndentWidth();
     return tabCount + Math.floor(spaceCount / indentWidth);
   }
 

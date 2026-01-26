@@ -122,18 +122,18 @@ export class WeeknoteSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName(t("taskIndentStyle"))
-      .setDesc(t("taskIndentStyleDesc"))
+      .setName(t("markdownIndentStyle"))
+      .setDesc(t("markdownIndentStyleDesc"))
       .addDropdown((dropdown) =>
         dropdown
           .addOptions({
-            "tab": t("taskIndentTab"),
-            "2-spaces": t("taskIndent2Spaces"),
-            "4-spaces": t("taskIndent4Spaces"),
+            "tab": t("markdownIndentTab"),
+            "2-spaces": t("markdownIndent2Spaces"),
+            "4-spaces": t("markdownIndent4Spaces"),
           })
-          .setValue(this.plugin.settings.taskIndentStyle || "tab")
+          .setValue(this.plugin.settings.markdownIndentStyle || "tab")
           .onChange(async (value) => {
-            this.plugin.settings.taskIndentStyle = value as "2-spaces" | "4-spaces" | "tab";
+            this.plugin.settings.markdownIndentStyle = value as "2-spaces" | "4-spaces" | "tab";
             await this.plugin.saveSettings();
           })
       );

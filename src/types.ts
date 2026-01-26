@@ -37,14 +37,14 @@ export interface TaskItem {
   lineIndex: number;    // Original line index in file for editing
 }
 
-export type TaskIndentStyle = "2-spaces" | "4-spaces" | "tab";
+export type MarkdownIndentStyle = "2-spaces" | "4-spaces" | "tab";
 
 export interface WeeknoteSettings {
   // General settings
   language: "ja" | "en";
   layoutMode: "two-panel" | "three-panel" | "three-panel-horizontal" | "t-panel"; // View layout mode
   saveLinksToMarkdown: boolean; // Convert pasted URLs to [Title](URL) format
-  taskIndentStyle: TaskIndentStyle; // Indentation style for tasks
+  markdownIndentStyle: MarkdownIndentStyle; // Indentation style for markdown lists
   
   // Calendar settings
   googleCalendarIcsUrl: string;
