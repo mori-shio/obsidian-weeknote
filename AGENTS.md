@@ -18,7 +18,7 @@ After completing a task, update the release notes based on the current branch na
    - Extract the version number (e.g., `1.1.3` from `release/1.1.3`)
 
 3. **Update the corresponding release notes file**
-   - File location: `docs/releases/vX.Y.Z.md`
+   - File location: `docs/releases/X.Y.Z.md`
    - If the file doesn't exist, create it using the template below
 
 4. **Update CHANGELOG.md**
@@ -27,7 +27,7 @@ After completing a task, update the release notes based on the current branch na
 ### Release Notes Template
 
 ```markdown
-# vX.Y.Z
+# X.Y.Z
 
 📅 Released: YYYY-MM-DD
 
@@ -60,7 +60,7 @@ After completing a task, update the release notes based on the current branch na
 ### Example
 
 For branch `release/1.1.3`:
-1. Open/create `docs/releases/v1.1.3.md`
+1. Open/create `docs/releases/1.1.3.md`
 2. Add the completed feature/fix under the appropriate category
 3. Update `CHANGELOG.md` with a summary line
 
