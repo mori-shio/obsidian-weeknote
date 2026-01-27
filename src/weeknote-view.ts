@@ -1175,7 +1175,23 @@ export class WeeknoteView extends ItemView {
     const file = this.app.vault.getAbstractFileByPath(filePath);
     
     if (file instanceof TFile) {
-      await this.app.workspace.getLeaf().openFile(file);
+      // Check if the file is already open in any leaf
+      const leaves = this.app.workspace.getLeavesOfType('markdown');
+      const existingLeaf = leaves.find(leaf => {
+        const view = leaf.view;
+        if (view && 'file' in view) {
+          return (view as any).file?.path === file.path;
+        }
+        return false;
+      });
+      
+      if (existingLeaf) {
+        // File is already open, activate that leaf
+        this.app.workspace.setActiveLeaf(existingLeaf, { focus: true });
+      } else {
+        // File is not open, open in a new tab
+        await this.app.workspace.getLeaf('tab').openFile(file);
+      }
     } else {
       new Notice(t("reportNotFound"));
     }

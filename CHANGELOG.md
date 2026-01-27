@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Renamed "Task Indentation" setting to "Markdown Indentation" (applies to both tasks and memos)
+- Optimized "Open report" button logic to prevent opening duplicate tabs and instead focus on an existing tab if the report is already open
 
 ## [1.1.3] - 2026-01-26
 
