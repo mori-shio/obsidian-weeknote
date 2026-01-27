@@ -382,12 +382,16 @@
   font-size: 0.9em;
   resize: none;
   font-family: inherit;
-  transition: all 0.2s ease;
+  box-sizing: border-box;
+  transition: background 0.2s ease;
 }
 
 .weeknote-editor textarea:focus {
   outline: none;
+  border-width: 2px;
+  padding: 11px 13px;
   box-shadow: 0 0 0 3px rgba(var(--interactive-accent-rgb), 0.15);
+  transition: none;
 }
 
 .weeknote-editor textarea::placeholder {
@@ -590,8 +594,10 @@
 }
 
 .weeknote-input-area .weeknote-editor textarea:focus {
-  outline: 2px solid var(--interactive-accent);
-  outline-offset: -1px;
+  outline: none;
+  border-width: 2px;
+  padding: 9px 11px;
+  box-shadow: 0 0 0 3px rgba(var(--interactive-accent-rgb), 0.15);
   transition: none;
 }
 
@@ -622,22 +628,68 @@
 
 .weeknote-reply-indicator {
   position: absolute;
-  left: -20px;
+  left: -24px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
-  font-size: 0.9em;
-  font-family: var(--font-monospace);
-  opacity: 0.6;
+  font-size: 1.1em;
+  opacity: 0.4;
 }
 
-.weeknote-memo-reply-input-container {
-  margin-left: 24px;
-  padding: 8px;
-  background: var(--background-secondary-alt);
-  border-radius: 8px;
-  border: 1px dashed var(--interactive-accent);
-  margin-bottom: 8px;
+/* Reply Mode Context Card Above Textarea */
+.weeknote-reply-context-card {
+  position: relative;
+  padding: 10px 14px 10px 36px;
+  background: var(--background-secondary);
+  border: 1px solid var(--interactive-accent);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 0;
+  font-size: 0.85em;
+  color: var(--text-normal);
+  max-height: 45px;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.weeknote-reply-context-card .reply-content {
+  font-size: 0.8em;
+  line-height: 1.4;
+  opacity: 0.85;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.weeknote-reply-context-card .reply-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2em;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* Connect textarea to the reply card */
+.weeknote-reply-context-card+textarea {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
+/* When textarea is focused, also highlight the reply card with thicker border and box-shadow */
+.weeknote-reply-context-card:has(+ textarea:focus) {
+  border-width: 2px;
+  padding: 9px 13px 9px 35px;
+  box-shadow: 0 0 0 3px rgba(var(--interactive-accent-rgb), 0.15);
+  transition: none;
+}
+
+.weeknote-reply-context-card:hover {
+  background: var(--background-modifier-hover);
 }
 
 .weeknote-memo-list {
@@ -660,12 +712,16 @@
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid var(--background-modifier-border);
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-shrink: 0;
+}
+
+/* Indent reply cards */
+.weeknote-card-reply {
+  margin-left: 36px;
 }
 
 .weeknote-card::before {
@@ -3332,6 +3388,10 @@ body.theme-dark .github-link-table .github-link-table-labels .github-link-table-
 
 .memo-action-icon-btn:hover svg {
   stroke-width: 2.5;
+}
+
+.reply-btn {
+  font-size: 1.1em;
 }
 
 /* Memo card selected state */

@@ -58,6 +58,8 @@ export class WeeknoteView extends ItemView {
   private helpRow: HTMLElement;
   private helpPanel: HTMLElement;
   private lastSelectedLineIndex: number | null = null;
+  private replyTarget: MemoItem | null = null;
+  private replyIndicator: HTMLElement | null = null;
   private memoListObserver: MutationObserver | null = null;
   private tabsContainer: HTMLElement;
 
@@ -156,10 +158,12 @@ export class WeeknoteView extends ItemView {
     container.createDiv({ cls: "help-section-title", text: t("memoHelpInputMode") });
     createHelpItem("Enter", t("memoHelpEnterAdd"));
     createHelpItem("Esc", t("memoHelpEscCancel"));
+    createHelpItem("Shift+Delete", t("memoHelpShiftDeleteCancelReply"));
     createHelpItem("Shift+Tab", t("memoHelpShiftTabToCard"));
     
     container.createDiv({ cls: "help-section-title", text: t("memoHelpCardSelected") });
     createHelpItem("Enter", t("memoHelpEnterEdit"));
+    createHelpItem("Shift+Enter", t("memoHelpShiftEnterReply"));
     createHelpItem("Delete", t("memoHelpDelete"));
     createHelpItem("Esc", t("memoHelpEscToInput"));
     createHelpItem("Tab / Shift+Tab", t("memoHelpTabMove"));
@@ -485,6 +489,13 @@ export class WeeknoteView extends ItemView {
         e.preventDefault();
         this.textArea.blur();
       }
+      // Shift+Delete: cancel reply mode
+      if (e.shiftKey && (e.key === "Delete" || e.key === "Backspace")) {
+        e.preventDefault();
+        if (this.replyTarget) {
+          this.cancelReply();
+        }
+      }
       // Shift+Tab: select the last memo card
       if (e.key === "Tab") {
         e.preventDefault();
@@ -614,6 +625,13 @@ export class WeeknoteView extends ItemView {
         e.preventDefault();
         this.textArea.blur();
       }
+      // Shift+Delete: cancel reply mode
+      if (e.shiftKey && (e.key === "Delete" || e.key === "Backspace")) {
+        e.preventDefault();
+        if (this.replyTarget) {
+          this.cancelReply();
+        }
+      }
       // Shift+Tab: select the last memo card
       if (e.key === "Tab") {
         e.preventDefault();
@@ -723,6 +741,13 @@ export class WeeknoteView extends ItemView {
         e.preventDefault();
         this.textArea.blur();
       }
+      // Shift+Delete: cancel reply mode
+      if (e.shiftKey && (e.key === "Delete" || e.key === "Backspace")) {
+        e.preventDefault();
+        if (this.replyTarget) {
+          this.cancelReply();
+        }
+      }
       // Shift+Tab: select the last memo card
       if (e.key === "Tab") {
         e.preventDefault();
@@ -830,6 +855,13 @@ export class WeeknoteView extends ItemView {
       if (e.key === "Escape") {
         e.preventDefault();
         this.textArea.blur();
+      }
+      // Shift+Delete: cancel reply mode
+      if (e.shiftKey && (e.key === "Delete" || e.key === "Backspace")) {
+        e.preventDefault();
+        if (this.replyTarget) {
+          this.cancelReply();
+        }
       }
       // Shift+Tab: select the last memo card
       if (e.key === "Tab") {
@@ -1227,7 +1259,27 @@ export class WeeknoteView extends ItemView {
                   this.activeMemoTooltip.cleanup();
                   this.activeMemoTooltip = null;
               }
-              this.editMemo(selectedMemo, memo, timestamp, content);
+              
+              if (e.shiftKey) {
+                  // Shift+Enter: Enter reply mode (only for parent memos)
+                  const levelStr = selectedMemo.dataset.level;
+                  const level = levelStr ? parseInt(levelStr) : 0;
+                  if (level === 0) {
+                      const memoItemStr = selectedMemo.dataset.memoItem;
+                      if (memoItemStr) {
+                          try {
+                              const memoItem = JSON.parse(memoItemStr) as MemoItem;
+                              selectedMemo.removeClass("is-selected");
+                              this.setReplyTarget(memoItem);
+                          } catch (e) {
+                              console.error("Failed to parse memoItem", e);
+                          }
+                      }
+                  }
+              } else {
+                  // Enter: Edit memo
+                  this.editMemo(selectedMemo, memo, timestamp, content);
+              }
           } else if (e.key === "Tab") {
               e.preventDefault();
               const cards = Array.from(this.memoListContainer?.querySelectorAll(".weeknote-card") || []);
@@ -1362,7 +1414,14 @@ export class WeeknoteView extends ItemView {
 
     try {
       const processedContent = await this.processTaskContent(content);
-      await this.plugin.insertMemoToWeeknote(processedContent, this.selectedDate);
+      
+      if (this.replyTarget) {
+        await this.plugin.insertReplyToWeeknote(this.replyTarget, processedContent, this.selectedDate);
+        // Don't cancel reply mode - let user continue replying or manually cancel with X button
+      } else {
+        await this.plugin.insertMemoToWeeknote(processedContent, this.selectedDate);
+      }
+      
       this.textArea.value = "";
 
       if (this.memoListContainer) {
@@ -1379,6 +1438,158 @@ export class WeeknoteView extends ItemView {
       new Notice(`${t("saveFailed")}: ${error}`);
     }
   }
+
+  /**
+   * Set a memo as the target for the next reply
+   */
+  setReplyTarget(memo: MemoItem): void {
+    // Check if memo input area is actually visible (works for all layouts)
+    const isInputVisible = this.inputArea && !this.inputArea.hasClass("weeknote-hidden");
+    
+    if (!isInputVisible && this.currentMemoView !== "memo") {
+      new Notice("Please switch to Memo view to reply");
+      return;
+    }
+
+    this.replyTarget = memo;
+    this.insertReplyIndicator(memo);
+  }
+
+  /**
+   * Insert the reply indicator UI
+   */
+  private insertReplyIndicator(memo: MemoItem): void {
+    // Ensure the input area is visible if it has elements
+    if (this.inputArea) {
+      this.inputArea.removeClass("weeknote-hidden");
+    }
+    
+    // Create or update reply indicator
+    if (this.replyIndicator) {
+      this.replyIndicator.remove();
+    }
+
+    if (!this.textArea || !this.textArea.parentElement) {
+      new Notice("Error: Could not find memo input field.");
+      return;
+    }
+    
+    this.replyIndicator = document.createElement("div");
+    this.replyIndicator.className = "weeknote-reply-context-card";
+    
+    // Reply icon (↪)
+    const iconEl = this.replyIndicator.createDiv({ cls: "reply-icon", text: "↪" });
+    
+    // Original content only (no "Replying to..." text)
+    const contentEl = this.replyIndicator.createDiv({ cls: "reply-content" });
+    contentEl.setText(memo.content);
+
+    // Click handler to show tooltip with cancel option
+    this.replyIndicator.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.showReplyIndicatorTooltip(e, this.replyIndicator!, memo);
+    });
+
+    // Insert into the parent of text area, right before the text area itself
+    this.textArea.parentElement.insertBefore(this.replyIndicator, this.textArea);
+
+    // Focus and update UI
+    this.textArea.focus();
+    this.textArea.placeholder = "Write a reply...";
+    this.saveBtn.setText(this.t("replyButton"));
+    this.inputArea.scrollIntoView({ behavior: "smooth", block: "end" });
+  }
+
+  /**
+   * Show tooltip for reply indicator with cancel option (matching memo card tooltip style)
+   */
+  private showReplyIndicatorTooltip(e: MouseEvent, indicator: HTMLElement, memo: MemoItem): void {
+    // Remove any existing tooltip
+    if (this.activeMemoTooltip) {
+      this.activeMemoTooltip.cleanup();
+      this.activeMemoTooltip = null;
+    }
+
+    // Create tooltip in document body for fixed positioning (same as memo cards)
+    const tooltip = document.body.createDiv({ cls: "memo-action-tooltip" });
+    
+    // Cancel reply button
+    const cancelBtn = tooltip.createEl("button", { 
+      cls: "memo-action-btn memo-action-icon-btn"
+    });
+    setIcon(cancelBtn, "x");
+    cancelBtn.setAttribute("title", "Cancel Reply");
+    cancelBtn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      cleanup();
+      this.cancelReply();
+    });
+
+    // Calculate click X offset for horizontal positioning
+    const indicatorRect = indicator.getBoundingClientRect();
+    let clickOffsetX = e.clientX - indicatorRect.left;
+    
+    // Fallback for keyboard events or programmatic clicks
+    if (e.clientX < indicatorRect.left || e.clientX > indicatorRect.right) {
+        clickOffsetX = indicatorRect.width / 2;
+    }
+
+    const updatePosition = () => {
+      const rect = indicator.getBoundingClientRect();
+      
+      // Position tooltip above the indicator, centered on click position
+      const left = rect.left + clickOffsetX;
+      const top = rect.top - 8; // 8px gap above indicator
+      
+      tooltip.setCssStyles({ left: `${left}px`, top: `${top}px` });
+    };
+
+    const cleanup = () => {
+      tooltip.remove();
+      document.removeEventListener("click", outsideClickHandler, true);
+      if (this.activeMemoTooltip?.element === indicator) {
+        this.activeMemoTooltip = null;
+      }
+    };
+    
+    const outsideClickHandler = (ev: MouseEvent) => {
+      if (!tooltip.contains(ev.target as Node) && !indicator.contains(ev.target as Node)) {
+        cleanup();
+      }
+    };
+    
+    // Position tooltip with fixed positioning (same as memo cards)
+    tooltip.setCssStyles({
+      position: "fixed",
+      transform: "translate(-50%, -100%)",
+      zIndex: "1000"
+    });
+    
+    // Initial position
+    updatePosition();
+    
+    this.activeMemoTooltip = { element: indicator, cleanup };
+    
+    // Close when clicking outside (delayed to avoid immediate trigger)
+    setTimeout(() => {
+      document.addEventListener("click", outsideClickHandler, true);
+    }, 10);
+  }
+
+  /**
+   * Cancel the current reply mode
+   */
+  cancelReply(): void {
+    this.replyTarget = null;
+    if (this.replyIndicator) {
+      this.replyIndicator.remove();
+      this.replyIndicator = null;
+    }
+    this.textArea.placeholder = this.plugin.settings.placeholder;
+    this.saveBtn.setText(this.plugin.settings.saveButtonLabel);
+  }
+
 
   async loadDayMemos(container: HTMLElement, date: moment.Moment): Promise<void> {
     const t = this.t.bind(this);
@@ -1418,7 +1629,7 @@ export class WeeknoteView extends ItemView {
     const card = container.createDiv({ cls: "weeknote-card" });
     if (memo.level > 0) {
       card.addClass("weeknote-card-reply");
-      card.createDiv({ cls: "weeknote-reply-indicator", text: "↳" });
+      card.createDiv({ cls: "weeknote-reply-indicator", text: "↪" });
     }
     
     // Store metadata for global keyboard shortcuts and editing
@@ -2959,16 +3170,18 @@ export class WeeknoteView extends ItemView {
     }
     
     // Reply button (only for parent memos, not replies)
-    const level = parseInt(card.dataset.level || "0");
+    const levelStr = card.dataset.level;
+    const level = levelStr ? parseInt(levelStr) : 0; // Default to 0 if no level attribute (old memos)
     if (level === 0) {
-      const replyBtn = tooltip.createEl("button", { cls: "memo-action-btn memo-action-icon-btn" });
-      setIcon(replyBtn, "message-circle");
+      const replyBtn = tooltip.createEl("button", { cls: "memo-action-btn memo-action-icon-btn reply-btn", text: "↪" });
       replyBtn.setAttribute("title", this.t("replyButton"));
       replyBtn.addEventListener("click", (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
         cleanup();
-        this.showReplyInput(card);
+        // Deselect all memo cards when entering reply mode
+        this.memoListContainer?.querySelectorAll(".is-selected").forEach(el => el.removeClass("is-selected"));
+        this.setReplyTarget(memoItem);
       });
       
       // Separator
@@ -3284,72 +3497,6 @@ export class WeeknoteView extends ItemView {
     return parseScheduleContentHelper(content);
   }
 
-  /**
-   * Show an inline input field for replying to a memo
-   */
-  showReplyInput(parentCard: HTMLElement): void {
-    const memoItemStr = parentCard.dataset.memoItem;
-    if (!memoItemStr) return;
-    const parentMemo: MemoItem = JSON.parse(memoItemStr);
-
-    // Create reply input container
-    const replyContainer = document.createElement("div");
-    replyContainer.className = "weeknote-memo-reply-input-container";
-    
-    // Insert after the parent card
-    parentCard.insertAdjacentElement("afterend", replyContainer);
-    
-    const wrapper = replyContainer.createDiv({ cls: "weeknote-card-edit-wrapper" });
-    const inputField = wrapper.createEl("textarea", {
-      cls: "weeknote-card-input",
-      placeholder: this.plugin.settings.placeholder || "Reply to memo..."
-    });
-    if (!(inputField instanceof HTMLTextAreaElement)) return;
-    const input = inputField;
-    input.focus();
-
-    const buttonCol = wrapper.createDiv({ cls: "weeknote-card-buttons" });
-    const saveBtn = buttonCol.createEl("button", { text: "✓", cls: "weeknote-card-save" });
-    const cancelBtn = buttonCol.createEl("button", { text: "✕", cls: "weeknote-card-cancel" });
-
-    const cleanup = () => {
-      replyContainer.remove();
-      parentCard.removeClass("is-selected");
-    };
-
-    saveBtn.addEventListener("click", async () => {
-      const content = input.value.trim();
-      if (content) {
-        saveBtn.addClass("is-loading");
-        try {
-          const processedContent = await this.processTaskContent(content);
-          await this.plugin.insertReplyToWeeknote(parentMemo, processedContent, this.selectedDate);
-          cleanup();
-          await this.refreshMemos();
-        } catch (error) {
-          new Notice(`Reply failed: ${error}`);
-          saveBtn.removeClass("is-loading");
-        }
-      } else {
-        cleanup();
-      }
-    });
-
-    cancelBtn.addEventListener("click", () => {
-      cleanup();
-    });
-
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        saveBtn.click();
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        cancelBtn.click();
-      }
-    });
-  }
-
   editMemo(card: HTMLElement, originalMemo: string, timestamp: string, content: string): void {
     // Save the original height before emptying
     const originalHeight = card.offsetHeight;
@@ -3380,6 +3527,13 @@ export class WeeknoteView extends ItemView {
       card.empty();
       card.removeClass("weeknote-card-editing");
       card.setCssStyles({ minHeight: "" });
+      
+      // Restore reply indicator if this is a reply card
+      const level = card.dataset.level ? parseInt(card.dataset.level) : 0;
+      if (level > 0) {
+        card.addClass("weeknote-card-reply");
+        card.createDiv({ cls: "weeknote-reply-indicator", text: "↪" });
+      }
       
       // Store metadata (might have been updated)
       card.dataset.memo = originalMemo;
